@@ -13,10 +13,17 @@
 		7E3726521E32F3BB008FF69C /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E3726511E32F3BB008FF69C /* GameScene.swift */; };
 		7E3726541E32F3BB008FF69C /* GameViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E3726531E32F3BB008FF69C /* GameViewController.swift */; };
 		7E3726571E32F3BB008FF69C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7E3726551E32F3BB008FF69C /* Main.storyboard */; };
-		7E3726591E32F3BB008FF69C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7E3726581E32F3BB008FF69C /* Assets.xcassets */; };
 		7E37265C1E32F3BB008FF69C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 7E37265A1E32F3BB008FF69C /* LaunchScreen.storyboard */; };
 		7E3726671E32F3BB008FF69C /* Wall_JumperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E3726661E32F3BB008FF69C /* Wall_JumperTests.swift */; };
 		7E3726721E32F3BB008FF69C /* Wall_JumperUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E3726711E32F3BB008FF69C /* Wall_JumperUITests.swift */; };
+		7E3726801E32F6E0008FF69C /* wallJumperGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E37267F1E32F6E0008FF69C /* wallJumperGame.swift */; };
+		7E4DF4D71E345C6800B48F07 /* MyParticle.sks in Resources */ = {isa = PBXBuildFile; fileRef = 7E4DF4D61E345C6800B48F07 /* MyParticle.sks */; };
+		7E8A9C7C1E391EA000264FCD /* sample.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7E8A9C7B1E391EA000264FCD /* sample.mp3 */; };
+		7E8A9C7E1E3920F700264FCD /* hitNoise.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 7E8A9C7D1E3920F700264FCD /* hitNoise.mp3 */; };
+		7EA3AF271E3823FC005D8DA1 /* smoke.sks in Resources */ = {isa = PBXBuildFile; fileRef = 7EA3AF251E3823FC005D8DA1 /* smoke.sks */; };
+		7EA3AF281E3823FC005D8DA1 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EA3AF261E3823FC005D8DA1 /* spark.png */; };
+		7ECF6ECC1E3681B70077FB61 /* AppIcon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */; };
+		7ED9D8ED1E38DDF40054F138 /* tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED9D8EC1E38DDF40054F138 /* tutorial.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +51,6 @@
 		7E3726511E32F3BB008FF69C /* GameScene.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameScene.swift; sourceTree = "<group>"; };
 		7E3726531E32F3BB008FF69C /* GameViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameViewController.swift; sourceTree = "<group>"; };
 		7E3726561E32F3BB008FF69C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
-		7E3726581E32F3BB008FF69C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		7E37265B1E32F3BB008FF69C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		7E37265D1E32F3BB008FF69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7E3726621E32F3BB008FF69C /* Wall JumperTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wall JumperTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -53,6 +59,14 @@
 		7E37266D1E32F3BB008FF69C /* Wall JumperUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Wall JumperUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		7E3726711E32F3BB008FF69C /* Wall_JumperUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Wall_JumperUITests.swift; sourceTree = "<group>"; };
 		7E3726731E32F3BB008FF69C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		7E37267F1E32F6E0008FF69C /* wallJumperGame.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = wallJumperGame.swift; sourceTree = "<group>"; };
+		7E4DF4D61E345C6800B48F07 /* MyParticle.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; name = MyParticle.sks; path = ../MyParticle.sks; sourceTree = "<group>"; };
+		7E8A9C7B1E391EA000264FCD /* sample.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = sample.mp3; sourceTree = "<group>"; };
+		7E8A9C7D1E3920F700264FCD /* hitNoise.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = hitNoise.mp3; sourceTree = "<group>"; };
+		7EA3AF251E3823FC005D8DA1 /* smoke.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = smoke.sks; sourceTree = "<group>"; };
+		7EA3AF261E3823FC005D8DA1 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
+		7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AppIcon.xcassets; sourceTree = "<group>"; };
+		7ED9D8EC1E38DDF40054F138 /* tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = tutorial.swift; path = ../tutorial.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,13 +117,19 @@
 		7E37264A1E32F3BB008FF69C /* Wall Jumper */ = {
 			isa = PBXGroup;
 			children = (
+				7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */,
 				7E37264B1E32F3BB008FF69C /* AppDelegate.swift */,
 				7E37264D1E32F3BB008FF69C /* GameScene.sks */,
 				7E37264F1E32F3BB008FF69C /* Actions.sks */,
+				7E4DF4D61E345C6800B48F07 /* MyParticle.sks */,
+				7EA3AF251E3823FC005D8DA1 /* smoke.sks */,
+				7EA3AF261E3823FC005D8DA1 /* spark.png */,
+				7ED9D8EC1E38DDF40054F138 /* tutorial.swift */,
+				7E37267F1E32F6E0008FF69C /* wallJumperGame.swift */,
+				7ECF6ECD1E36B4670077FB61 /* music */,
 				7E3726511E32F3BB008FF69C /* GameScene.swift */,
 				7E3726531E32F3BB008FF69C /* GameViewController.swift */,
 				7E3726551E32F3BB008FF69C /* Main.storyboard */,
-				7E3726581E32F3BB008FF69C /* Assets.xcassets */,
 				7E37265A1E32F3BB008FF69C /* LaunchScreen.storyboard */,
 				7E37265D1E32F3BB008FF69C /* Info.plist */,
 			);
@@ -132,6 +152,15 @@
 				7E3726731E32F3BB008FF69C /* Info.plist */,
 			);
 			path = "Wall JumperUITests";
+			sourceTree = "<group>";
+		};
+		7ECF6ECD1E36B4670077FB61 /* music */ = {
+			isa = PBXGroup;
+			children = (
+				7E8A9C7D1E3920F700264FCD /* hitNoise.mp3 */,
+				7E8A9C7B1E391EA000264FCD /* sample.mp3 */,
+			);
+			name = music;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -244,11 +273,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E8A9C7E1E3920F700264FCD /* hitNoise.mp3 in Resources */,
+				7E4DF4D71E345C6800B48F07 /* MyParticle.sks in Resources */,
 				7E3726571E32F3BB008FF69C /* Main.storyboard in Resources */,
 				7E37264E1E32F3BB008FF69C /* GameScene.sks in Resources */,
-				7E3726591E32F3BB008FF69C /* Assets.xcassets in Resources */,
+				7E8A9C7C1E391EA000264FCD /* sample.mp3 in Resources */,
+				7ECF6ECC1E3681B70077FB61 /* AppIcon.xcassets in Resources */,
 				7E37265C1E32F3BB008FF69C /* LaunchScreen.storyboard in Resources */,
+				7EA3AF281E3823FC005D8DA1 /* spark.png in Resources */,
 				7E3726501E32F3BB008FF69C /* Actions.sks in Resources */,
+				7EA3AF271E3823FC005D8DA1 /* smoke.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -273,9 +307,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7E3726801E32F6E0008FF69C /* wallJumperGame.swift in Sources */,
 				7E3726521E32F3BB008FF69C /* GameScene.swift in Sources */,
 				7E3726541E32F3BB008FF69C /* GameViewController.swift in Sources */,
 				7E37264C1E32F3BB008FF69C /* AppDelegate.swift in Sources */,
+				7ED9D8ED1E38DDF40054F138 /* tutorial.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,12 +461,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-3";
 				DEVELOPMENT_TEAM = 9FQBT73NW4;
 				INFOPLIST_FILE = "Wall Jumper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Wall-Jumper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -438,12 +476,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-3";
 				DEVELOPMENT_TEAM = 9FQBT73NW4;
 				INFOPLIST_FILE = "Wall Jumper/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.example.Wall-Jumper";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -524,6 +564,7 @@
 				7E3726781E32F3BB008FF69C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7E3726791E32F3BB008FF69C /* Build configuration list for PBXNativeTarget "Wall JumperTests" */ = {
 			isa = XCConfigurationList;
@@ -532,6 +573,7 @@
 				7E37267B1E32F3BB008FF69C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		7E37267C1E32F3BB008FF69C /* Build configuration list for PBXNativeTarget "Wall JumperUITests" */ = {
 			isa = XCConfigurationList;
@@ -540,6 +582,7 @@
 				7E37267E1E32F3BB008FF69C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
