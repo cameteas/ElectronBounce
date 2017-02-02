@@ -25,6 +25,23 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ///////////////////////
+    ///////////////////////
+    //////contacts////////
+    ///////////////////////
+    ///////////////////////
+
     struct PhysicsCategory {
         
         static let None :UInt32 = 0         //0
@@ -33,10 +50,10 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         static let Border :UInt32 = 0b100   //4
         static let ground :UInt32 = 0b1000 //8
         static let All :UInt32 = UInt32.max
-        
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
+        
         var contactBody1 :SKPhysicsBody
         var contactBody2 :SKPhysicsBody
         
@@ -80,9 +97,9 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 self.cheatTime = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector((canHitt)), userInfo: nil, repeats: false)
                 if timesTouched > highscore {
                     highscore = timesTouched
-                    UserDefaults.standard.set(highscore, forKey: "highscore")
+                    UserDefaults.standard.set(highscore, forKey: "Classic highscore")
                 }
-                scoreLabel.text = "HighScore: " + "\(highscore)"
+                scoreLabel.text = "Classic HighScore: " + "\(highscore)"
                 ball.run(SKAction.sequence([
                     SKAction.run {
                         self.ball.texture = self.HappyText
@@ -123,6 +140,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                     self.wait = true
                     self.jumpcount = 3
                     self.canHit = false
+                    self.tapsInGame = 0
                     contactBody1.node?.physicsBody?.velocity = CGVector(dx: 0, dy: 1000)
                     contactBody1.node?.physicsBody?.contactTestBitMask = PhysicsCategory.None
                     contactBody1.node?.physicsBody?.collisionBitMask = PhysicsCategory.None
@@ -139,7 +157,12 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 SKAction.wait(forDuration: 0.1),
                 SKAction.run {
                     if self.gameover == true {
-                        self.youLose.text = "\(self.timesTouched)" + " Touches!"
+                        if self.timesTouched == 1 {
+                            self.youLose.text = "\(self.timesTouched)" + " Touch!"
+                        }
+                        else {
+                            self.youLose.text = "\(self.timesTouched)" + " Touches!"
+                        }
                     }
                 },
                 SKAction.wait(forDuration: 0.5),
@@ -162,15 +185,30 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
             self.ball.texture = DeadText
                 
         }
-        
-        //        if ((contactBody1.categoryBitMask == 2) && (contactBody2.categoryBitMask == 4)){
-        //            hitEmit(velocity: 1000, from: self.ball.position)
-        //        }
     }
     
     
+
     
-    //declaring variables
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ///////////////////////
+    ///////////////////////
+    //////Variables////////
+    ///////////////////////
+    ///////////////////////
+
     
     var NeutralText = SKTexture(imageNamed: "Neutral2")
     var HappyText = SKTexture(imageNamed: "Happy2")
@@ -204,14 +242,24 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     var greyDarkthing: SKColor = UIColor(red: 52, green: 56, blue: 56, alpha: 1)
     var darkBLueThing: SKColor = UIColor(red: 0, green: 95, blue: 107, alpha: 1)
     let spark = SKEmitterNode (fileNamed: "MyParticle.sks")
+    
     let smoke = SKEmitterNode (fileNamed: "smoke.sks")
     
     var title = SKSpriteNode(imageNamed: "electronBounce")
     var titleOnScreen = true
     
     var cog = SKSpriteNode(imageNamed: "setting")
+    var tutorialButton = SKSpriteNode(imageNamed: "tutorialButton")
+    
+    var gameModes = 2
+    var classicButton = SKSpriteNode(imageNamed: "classicMode")
+    var beginnerButton = SKSpriteNode(imageNamed: "beginnerMode")
+    var hardcoreButton = SKSpriteNode(imageNamed: "hardcoreMode")
+    
+    var playGameButton = SKSpriteNode(imageNamed: "PlayButton")
     
     var pauseTimer = SKLabelNode(fontNamed: "Arial")
+    var pauseTimer2 = SKLabelNode(fontNamed: "Arial")
     var allowPause = false
     var pauseback = SKShapeNode(rectOf: CGSize(width: 1000, height: 3000))
     var shadowTime = Timer()
@@ -233,11 +281,31 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     var audioPlayer = AVAudioPlayer()
     
-    //test change
+    var settingsIsShown = false
+
     
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ///////////////////////
+    ///////////////////////
+    //////Primary//////////
+    //////Functions////////
+    ///////////////////////
+
     
     
     override func didMove(to view: SKView) {
@@ -287,8 +355,11 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
 //        self.addChild(background)
         
         
-        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2), fontColor: SKColor.black, fontSize: 80, text: "", font: "arial", label: pauseTimer)
+        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.85), fontColor: SKColor.black, fontSize: 80, text: "", font: "arial", label: pauseTimer)
         pauseTimer.zPosition = 109
+        
+        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.8), fontColor: SKColor.black, fontSize: 40, text: "", font: "arial", label: pauseTimer2)
+        pauseTimer2.zPosition = 109
         
         if let x = UserDefaults.standard.object(forKey: "highscore") as? Int{
             highscore = x
@@ -310,7 +381,34 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         
         cog.position = CGPoint(x: self.frame.size.width*0.06, y: self.frame.size.height*0.04)
         cog.size = CGSize(width: 90, height: 90)
+        self.cog.zPosition = 110
+
         self.addChild(cog)
+        
+        classicButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        classicButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
+        classicButton.zPosition = 110
+        classicButton.size = CGSize(width: 600, height: 200)
+        
+        beginnerButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        beginnerButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
+        beginnerButton.zPosition = 110
+        beginnerButton.size = CGSize(width: 600, height: 200)
+        
+        hardcoreButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        hardcoreButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
+        hardcoreButton.zPosition = 110
+        hardcoreButton.size = CGSize(width: 600, height: 200)
+        
+        tutorialButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        tutorialButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.53)
+        tutorialButton.zPosition = 110
+        tutorialButton.size = CGSize(width: 600, height: 200)
+        
+        playGameButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        playGameButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.36)
+        playGameButton.zPosition = 110
+        playGameButton.size = CGSize(width: 600, height: 200)
         
         pauseback.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
         pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0)
@@ -327,86 +425,121 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         catch {
             
         }
+
         
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch: AnyObject in touches {
             positionOfTouch = touch.location(in: self)
-            if (positionOfTouch.x < self.frame.size.width*0.12) && (positionOfTouch.y < self.frame.size.height*0.08) {
-                if jumpcount < 2{
-                    if allowPause {
-                        if (gamePaused == false) {
-                            gamePaused = true
-                            pause()
-                            pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0.25)
-                            self.pauseTimer.text = "Paused"
+                if (positionOfTouch.x < self.frame.size.width*0.12) && (positionOfTouch.y < self.frame.size.height*0.08) {
+                        if tapsInGame == 0{
+                            if settingsIsShown == false {
+                                showSettings()
+                            }
+                            else if settingsIsShown == true {
+                                removeSettings()
+                            }
+                    }
+                    else if tapsInGame > 0{
+                        if allowPause {
+                            if (gamePaused == false) {
+                                showPauseMenu()
+                            }
+                            else if (gamePaused == true) {
+                                removePauseMenu()
+                            }
+                        }
+
+                    }
+                }
+                else if gamePaused == true {
+                    if settingsIsShown == true {
+                        ///////////////////////
+                        ///////////////////////
+                        //////buttons//////////
+                        ///////////////////////
+                        ///////////////////////
+                        
+                        if (positionOfTouch.x > tutorialButton.position.x - 300) && (positionOfTouch.x < tutorialButton.position.x + 300) {
+                            if (positionOfTouch.y > tutorialButton.position.y - 100) && (positionOfTouch.y < tutorialButton.position.y + 100) {
+                                tutorialRun()
+                            }
+                        }
+                        if (positionOfTouch.x > classicButton.position.x) && (positionOfTouch.x < classicButton.position.x + 300) {
+                            if (positionOfTouch.y > classicButton.position.y - 100) && (positionOfTouch.y < classicButton.position.y + 100) {
+                                removeSettings()
+                                gamemodeSwitch = true
+                                if gameModes == 3 {
+                                    gameModes = 1
+                                }
+                                else{
+                                    gameModes += 1
+                                }
+                                showSettings()
+                            }
+                        }
+                        if (positionOfTouch.x < classicButton.position.x) && (positionOfTouch.x > classicButton.position.x - 300) {
+                            if (positionOfTouch.y > classicButton.position.y - 100) && (positionOfTouch.y < classicButton.position.y + 100) {
+                                removeSettings()
+                                gamemodeSwitch = true
+                                if gameModes == 1 {
+                                    gameModes = 3
+                                }
+                                else{
+                                    gameModes -= 1
+                                }
+                                showSettings()
+                            }
+                        }
+                        
+                        if (positionOfTouch.x > playGameButton.position.x - 300) && (positionOfTouch.x < playGameButton.position.x + 300) {
+                            if (positionOfTouch.y > playGameButton.position.y - 100) && (positionOfTouch.y < playGameButton.position.y + 100) {
+                                removeSettings()
+                            }
+                        }
+
+                        
+                        
+                        
+                    }
+                }
+                else if gamePaused == false{
+                    if jumpcount < 2{
+                        if gameover == false{
+                            allowPause = true
                             
-                        }
-                        else if (gamePaused == true) {
-                            self.unPause()
-                            self.gamePaused = false
-                            self.pauseTimer.text = ""
-                            self.allowPause = true
-                            self.pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0)
-
-//                            allowPause = false
-//                            pauseTimer.run(SKAction.sequence([
-//                                SKAction.run {
-//                                    self.pauseTimer.text = "3"
-//                                },
-//                                SKAction.wait(forDuration: 1),
-//                                SKAction.run {
-//                                    self.pauseTimer.text = "2"
-//                                },
-//                                SKAction.wait(forDuration: 1),
-//                                SKAction.run {
-//                                    self.pauseTimer.text = "1"
-//                                },
-//                                SKAction.wait(forDuration: 1),
-//                                SKAction.run {
-//                                }
-//                            ]))
-                        }
-                    }
-
-                }
-            }
-            else if gamePaused == false{
-                if jumpcount < 2{
-                    if gameover == false{
-                        allowPause = true
-                        
-                        ball.physicsBody?.affectedByGravity = true
-                        if positionOfTouch.x > self.frame.size.width/2 {
-                            self.ball.physicsBody?.velocity.dx = jumpPower
-                            self.ball.physicsBody?.velocity.dy = jumpPower
-                            tappedRight = false
-                        }
-                        if positionOfTouch.x < self.frame.size.width/2 {
-                            self.ball.physicsBody?.velocity.dx = -jumpPower
-                            self.ball.physicsBody?.velocity.dy = jumpPower
-                            tappedRight = true
-                        }
-                        positionOfTouchSave = positionOfTouch
-                        jumpcount += 1
-                        gameStart = false
-                        updateScore()
-                        tapsInGame += 1
-                        
-                        if tapsInGame == 1 {
-                            cog.run(SKAction.scale(to: 0, duration: 0.2))
-                            pauseSprite.run(SKAction.sequence([
-                                SKAction.wait(forDuration: 0.2),
-                                SKAction.scale(to:0.5, duration:0.15),
-                                SKAction.scale(to:1.2, duration:0.35),
-                                SKAction.scale(to:0.9, duration:0.05),
-                                SKAction.scale(to:1.05, duration:0.025),
-                                SKAction.scale(to:1, duration:0.025)
-                            ]))
+                            ball.physicsBody?.affectedByGravity = true
+                            if positionOfTouch.x > self.frame.size.width/2 {
+                                self.ball.physicsBody?.velocity.dx = jumpPower
+                                self.ball.physicsBody?.velocity.dy = jumpPower
+                                tappedRight = false
+                            }
+                            if positionOfTouch.x < self.frame.size.width/2 {
+                                self.ball.physicsBody?.velocity.dx = -jumpPower
+                                self.ball.physicsBody?.velocity.dy = jumpPower
+                                tappedRight = true
+                            }
+                            positionOfTouchSave = positionOfTouch
+                            jumpcount += 1
+                            gameStart = false
+                            updateScore()
+                            tapsInGame += 1
+                            
+                            if tapsInGame == 1 {
+                                shadowTime.invalidate()
+                                cog.run(SKAction.scale(to: 0, duration: 0.2))
+                                pauseSprite.run(SKAction.sequence([
+                                    SKAction.wait(forDuration: 0.2),
+                                    SKAction.scale(to:0.5, duration:0.15),
+                                    SKAction.scale(to:1.2, duration:0.35),
+                                    SKAction.scale(to:0.9, duration:0.05),
+                                    SKAction.scale(to:1.05, duration:0.025),
+                                    SKAction.scale(to:1, duration:0.025)
+                                ]))
+                            }
                         }
                     }
-                }
             }
             if wait == false {
                 if gameover == true {
@@ -419,34 +552,11 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 title.run(SKAction.sequence([
                     SKAction.fadeOut(withDuration: 1)
                 ]))
-//                cog.run(SKAction.fadeOut(withDuration: 1))
             }
         }
     }
-//override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-//    for touch: AnyObject in touches {
-//        positionOfTouch = touch.location(in: self)
-//        if tappedRight{
-//            if positionOfTouch.y > positionOfTouchSave.y{
-//                ball.physicsBody?.angularVelocity += 10
-//            }
-//            if positionOfTouch.y < positionOfTouchSave.y {
-//                ball.physicsBody?.angularVelocity -= 10
-//            }
-//        }
-//        if tappedRight == false {
-//            if positionOfTouch.y > positionOfTouchSave.y{
-//                ball.physicsBody?.angularVelocity -= 10
-//            }
-//            if positionOfTouch.y < positionOfTouchSave.y {
-//                ball.physicsBody?.angularVelocity += 10
-//            }
-//        }
-//    }
-//}
-//    
+
     func tail() {
-        // tail settings
         if jumpcount == 2 {
             redVariance = 0
             greenVariance = 95
@@ -465,8 +575,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
             blueVariance = 252
             smoke?.particlePosition = ball.position
             smoke?.particleBirthRate = 0
-//            smoke?.xAcceleration = -(ball.physicsBody?.velocity.dx)!
-//            smoke?.yAcceleration = -(ball.physicsBody?.velocity.dy)!
         }
         var marquer = SKShapeNode(circleOfRadius: 25)
         marquer.position = self.ball.position
@@ -495,36 +603,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     func miscGameLoop() {
         
-        var outOfBoundsCheck = 0
-        if self.target.position.x > self.frame.size.width {
-            outOfBoundsCheck += 1
-        }
-        if self.target.position.x < 0 {
-            outOfBoundsCheck += 1
-        }
-        if self.target.position.y > self.frame.size.height {
-            outOfBoundsCheck += 1
-        }
-        if self.target.position.y < 0 {
-            outOfBoundsCheck += 1
-        }
-        if outOfBoundsCheck > 0 {
-            self.target.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
-        }
-        
-        if highscore > highscorelimiter{
-//            if highscoreConfusion {
-//               jumpPower = 850
-//                highscoreConfusion = false
-//            }
-//            else if highscoreConfusion == false {
-//                jumpPower = 1150
-//                highscoreConfusion = true
-//            }
-            jumpPower = 850
-            
-            
-        }
         if tapsInGame == 0{
             if ball.physicsBody?.velocity == CGVector(dx: 0, dy: 1000) {
                 ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
@@ -532,6 +610,28 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         }
 
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    ///////////////////////
+    ///////////////////////
+    //////Secondary////////
+    //////Functions////////
+    ///////////////////////
     
     
     func updateScore() {
@@ -548,19 +648,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         resetGroundContact()
         resetBorderContact()
         
-        if gameover == true {
-            if timesTouched == 1 {
-                youLose.text = "\(timesTouched)" + " Touch!"
-            }
-            else {
-                youLose.text = "\(timesTouched)" + " Touches!"
-            }
-            secondText.text = ""
-            
-        }
-        else{
-            youLose.text = "\(timesTouched)"
-        }
         
         score = 0
         jumpcount = 0
@@ -571,6 +658,9 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         highscorelimiter = highscore
         tapsInGame = 0
         canHit = true
+        youLose.text = ""
+        shadowTime = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector((miscGameLoop)), userInfo: nil, repeats: true)
+
         }
 
     
@@ -641,16 +731,45 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         self.physicsBody?.collisionBitMask = PhysicsCategory.Ball
         self.physicsBody?.contactTestBitMask = PhysicsCategory.None
     }
+    
+    
+    
     func canHitt()
     {
         canHit = true
+        
+        var outOfBoundsCheck = 0
+        if self.target.position.x > self.frame.size.width {
+            outOfBoundsCheck += 1
+        }
+        if self.target.position.x < 0 {
+            outOfBoundsCheck += 1
+        }
+        if self.target.position.y > self.frame.size.height {
+            outOfBoundsCheck += 1
+        }
+        if self.target.position.y < 0 {
+            outOfBoundsCheck += 1
+        }
+        if outOfBoundsCheck > 0 {
+            self.target.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
+        }
+        
+        if highscore > highscorelimiter{
+            if highscoreConfusion {
+                jumpPower = 850
+                highscoreConfusion = false
+            }
+            else if highscoreConfusion == false {
+                jumpPower = 1150
+                highscoreConfusion = true
+            }
+        }
     }
     
     func createEmitNode(position: CGPoint, Velocity: CGVector){
         var shape = SKSpriteNode(imageNamed: "spark2")
         shape.size = CGSize(width: 25, height: 5)
-//        shape.strokeColor = SKColor.orange
-//        shape.lineWidth = 5
         shape.position = position
         
         shape.physicsBody = SKPhysicsBody(circleOfRadius: 1)
@@ -757,21 +876,129 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     var gamePaused = false
     var canAccessPause = false
     
+    func showPauseMenu() {
+        gamePaused = true
+        pause()
+        pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0.25)
+        self.pauseSprite.zPosition = 120
+        self.pauseTimer.text = "Paused"
+        self.pauseTimer2.text = "Tap the pause icon to resume"
+        self.pauseTimer.fontColor = SKColor.black
+        self.pauseTimer2.fontColor = SKColor.black
+    }
+    
+    func removePauseMenu(){
+        unPause()
+        self.gamePaused = false
+        self.pauseTimer.text = ""
+        self.pauseTimer2.text = ""
+        self.allowPause = true
+        self.pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0)
+        
+    }
+    
     func pause() {
         self.isPaused = true
-//        ballVelocitySave = (self.ball.physicsBody?.velocity)!
-//        squareVelocitySave = (self.target.physicsBody?.velocity)!
-//        self.ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-//        self.ball.physicsBody?.affectedByGravity = false
-//        self.target.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
-//        self.target.physicsBody?.affectedByGravity = false
+        shadowTime.invalidate()
     }
     func unPause() {
         self.isPaused = false
-//        self.ball.physicsBody?.velocity = ballVelocitySave
-//        self.ball.physicsBody?.affectedByGravity = true
-//        self.target.physicsBody?.velocity = squareVelocitySave
-//        self.target.physicsBody?.affectedByGravity = false
+        shadowTime = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector((miscGameLoop)), userInfo: nil, repeats: true)
     }
+    
+    var gamemodeSwitch = false
+
+    
+    func showSettings() {
+        
+
+        
+        pause()
+        pauseback.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+        gamePaused = true
+        self.pauseTimer.fontColor = darkBLueThing
+        self.settingsIsShown = true
+        self.cog.color = SKColor.white
+        
+        self.pauseTimer.text = "Settings"
+        
+        self.addChild(tutorialButton)
+        switch gameModes {
+        case 1:
+            self.addChild(beginnerButton)
+            break
+        case 2:
+            self.addChild(classicButton)
+            break
+        case 3:
+            self.addChild(hardcoreButton)
+            break
+        default:
+            break
+        }
+        self.addChild(playGameButton)
+        gamemodeSwitch = false
+        
+        
+        
+
+    }
+    
+    func removeSettings() {
+        unPause()
+        gamePaused = false
+        pauseback.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
+        gamePaused = false
+        self.pauseTimer.text = ""
+        self.settingsIsShown = false
+        tutorialButton.removeFromParent()
+        switch gameModes {
+        case 1:
+            beginnerButton.removeFromParent()
+            break
+        case 2:
+            classicButton.removeFromParent()
+            break
+        case 3:
+            hardcoreButton.removeFromParent()
+            break
+        default:
+            break
+        }
+        
+        playGameButton.removeFromParent()
+    }
+    
+    
+    
+    
+    func tutorialRun() {
+        self.removeAllChildren()
+        var newGame = tutorial(size: self.size)
+        newGame.scaleMode = scaleMode
+        self.view?.presentScene(newGame)
+    }
+    
+    
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
 }

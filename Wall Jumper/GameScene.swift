@@ -101,6 +101,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     
     //declaring variables
+    public static var apple = 100
+    
     var ball = SKShapeNode(circleOfRadius: 25)
     var positionOfTouch = CGPoint(x: 0, y: 0)
     var scoreLabel = SKLabelNode(fontNamed: "Arial")
@@ -131,6 +133,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     override func didMove(to view: SKView) {
         
+        removeAllChildren()
         var newGame = wallJumperGame(size: self.size)
         newGame.scaleMode = scaleMode
         self.view?.presentScene(newGame)
