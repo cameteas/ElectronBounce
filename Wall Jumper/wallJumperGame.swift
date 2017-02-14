@@ -45,10 +45,12 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     struct PhysicsCategory {
         
         static let None :UInt32 = 0         //0
-        static let Ball :UInt32 = 0b10       //2
-        static let Platform :UInt32 = 0b1  //1
+        static let Ball :UInt32 = 0b10      //2
+        static let Platform :UInt32 = 0b1   //1
         static let Border :UInt32 = 0b100   //4
-        static let ground :UInt32 = 0b1000 //8
+        static let ground :UInt32 = 0b1000  //8
+        static let coin :UInt32 = 0b10000   //16
+
         static let All :UInt32 = UInt32.max
     }
     
@@ -70,8 +72,8 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
             if self.canHit {
                 self.target.run(SKAction.sequence([
                     SKAction.run {
-                        self.target.strokeColor = self.darkBLueThing
-                        self.target.fillColor = self.darkBLueThing
+                        self.target.strokeColor = self.accentSwitch
+                        self.target.fillColor = self.accentSwitch
 
                     },
                     SKAction.scale(to: 1.2, duration: 0.1),
@@ -94,19 +96,49 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 timesTouched += 1
                 updateScore()
                 canHit = false
-                self.cheatTime = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector((canHitt)), userInfo: nil, repeats: false)
-                if timesTouched > highscore {
-                    highscore = timesTouched
-                    UserDefaults.standard.set(highscore, forKey: "Classic highscore")
+                coinCounter += 1
+                if self.coinCounter == 3 {
+                    self.coinCounter = 0
+                    self.respawnCoin()
+                    
                 }
-                scoreLabel.text = "Classic HighScore: " + "\(highscore)"
+                self.cheatTime = Timer.scheduledTimer(timeInterval: 0.2, target: self, selector: #selector((canHitt)), userInfo: nil, repeats: false)
+                switch gameModes {
+                case 1:
+                    if timesTouched > beginnerHighscore {
+                        beginnerHighscore = timesTouched
+                        UserDefaults.standard.set(beginnerHighscore, forKey: "BeginnerHighscore")
+                    }
+                    scoreLabel.text = "Beginner HighScore: " + "\(beginnerHighscore)"
+                    break
+                case 2:
+                    if timesTouched > classicHighscore {
+                        classicHighscore = timesTouched
+                        UserDefaults.standard.set(classicHighscore, forKey: "ClassicHighscore")
+                    }
+                    scoreLabel.text = "Classic HighScore: " + "\(classicHighscore)"
+                    break
+                case 3:
+                    if timesTouched > hardcoreHighscore {
+                        hardcoreHighscore = timesTouched
+                        UserDefaults.standard.set(hardcoreHighscore, forKey: "HardcoreHighscore")
+                    }
+                    scoreLabel.text = "HardCore HighScore: " + "\(hardcoreHighscore)"
+                    break
+                default:
+                    break
+                }
+                
+                
                 ball.run(SKAction.sequence([
                     SKAction.run {
-                        self.ball.texture = self.HappyText
+                        self.ball.texture = self.ballTexture[1]
                     },
                     SKAction.wait(forDuration: 1),
                     SKAction.run {
-                        self.ball.texture = self.NeutralText
+                        if self.gameover != true {
+                          self.ball.texture = self.ballTexture[0]
+                        }
                     }
                     
                     ]))
@@ -114,9 +146,9 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 spark?.run(SKAction.sequence([
                     SKAction.run {
                         self.spark?.particlePosition = self.target.position
-                        self.spark?.particleBirthRate = 2000
-                        self.spark?.yAcceleration = (self.target.physicsBody?.velocity.dy)!
-                        self.spark?.xAcceleration = (self.target.physicsBody?.velocity.dx)!
+                        self.spark?.particleBirthRate = 3000
+                        self.spark?.yAcceleration = (self.target.physicsBody?.velocity.dy)! + (self.ball.physicsBody?.velocity.dy)!
+                        self.spark?.xAcceleration = (self.target.physicsBody?.velocity.dx)! + (self.ball.physicsBody?.velocity.dx)!
 //                        self.spark?.particlePosition.x = (contactBody1.node?.position.x)!
 //                        self.spark?.particlePosition.y = (contactBody1.node?.position.y)!
 
@@ -157,12 +189,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 SKAction.wait(forDuration: 0.1),
                 SKAction.run {
                     if self.gameover == true {
-                        if self.timesTouched == 1 {
-                            self.youLose.text = "\(self.timesTouched)" + " Touch!"
-                        }
-                        else {
-                            self.youLose.text = "\(self.timesTouched)" + " Touches!"
-                        }
+                        self.showGameover()
                     }
                 },
                 SKAction.wait(forDuration: 0.5),
@@ -182,8 +209,12 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                 }
                 ]))
             pauseSprite.run(SKAction.scale(to: 0, duration: 0.2))
-            self.ball.texture = DeadText
+            self.ball.texture = self.ballTexture[2]
                 
+        }
+        
+        if ((contactBody1.categoryBitMask == 2 ) && (contactBody2.categoryBitMask == 16)){
+            respawnCoin()
         }
     }
     
@@ -210,10 +241,20 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     ///////////////////////
 
     
-    var NeutralText = SKTexture(imageNamed: "Neutral2")
-    var HappyText = SKTexture(imageNamed: "Happy2")
-    var DeadText = SKTexture(imageNamed: "Dead2")
-    var focusedText = SKTexture(imageNamed: "focused")
+    
+    var blueTextures:Array<SKTexture> = []
+    var yellowTextures:Array<SKTexture> = []
+    var violetTextures:Array<SKTexture> = []
+    var redTextures:Array<SKTexture> = []
+    var greenTextures:Array<SKTexture> = []
+    var fuschiaTextures:Array<SKTexture> = []
+    var orangeTextures:Array<SKTexture> = []
+    
+    
+    var ballTexture:Array<SKTexture> = []
+
+    
+    
     
     var ball = SKSpriteNode()
     var ballshaddow = SKShapeNode(circleOfRadius: 25)
@@ -229,13 +270,12 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     var timesTouched = 0
     var gameover = false
     var wait = false
-    var redVariance: CGFloat = 0
-    var greenVariance: CGFloat = 0
-    var blueVariance: CGFloat = 0
     var cheatTime = Timer()
     var canHit = true
     var pauseSprite = SKSpriteNode(imageNamed: "Pause")
-    var highscore = 0
+    var beginnerHighscore = 0
+    var classicHighscore = 0
+    var hardcoreHighscore = 0
     var secondText = SKLabelNode(fontNamed: "Arial")
     var showtext = true
     var background = SKSpriteNode(imageNamed: "background")
@@ -249,14 +289,18 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     var titleOnScreen = true
     
     var cog = SKSpriteNode(imageNamed: "setting")
-    var tutorialButton = SKSpriteNode(imageNamed: "tutorialButton")
+    
     
     var gameModes = 2
     var classicButton = SKSpriteNode(imageNamed: "classicMode")
-    var beginnerButton = SKSpriteNode(imageNamed: "beginnerMode")
-    var hardcoreButton = SKSpriteNode(imageNamed: "hardcoreMode")
-    
+    var classicLabel = SKLabelNode(fontNamed: "Helvetica")
+    var customizeButton = SKSpriteNode(imageNamed: "customize")
+    var customizeLabel = SKLabelNode(fontNamed: "Helvetica")
+    var tutorialButton = SKSpriteNode(imageNamed: "tutorialButton")
+    var statisticsLabel = SKLabelNode(fontNamed: "Helvetica")
     var playGameButton = SKSpriteNode(imageNamed: "PlayButton")
+    var playLabel = SKLabelNode(fontNamed: "Helvetica")
+    
     
     var pauseTimer = SKLabelNode(fontNamed: "Arial")
     var pauseTimer2 = SKLabelNode(fontNamed: "Arial")
@@ -283,13 +327,84 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     var settingsIsShown = false
 
+    var jumpcountRestriction = 2
+    
+    var tailColor = 0
+    
+    var theme = 0
+    
+    var particle = 0
+    var blueSpray = SKTexture(imageNamed: "BlueParticle")
+    var yellowSpray = SKTexture(imageNamed: "YellowParticle")
+    var violetSpray = SKTexture(imageNamed: "PurpleParticle")
+    var redSpray = SKTexture(imageNamed: "RedParticle")
+    var greenSpray = SKTexture(imageNamed: "GreenParticle")
+    var fuschiaSpray = SKTexture(imageNamed: "fuschiaParticle")
+    var orangeSpray = SKTexture(imageNamed: "OrangeParticle")
+    
+    
+    var costume = 1
+    var hatSelection = 0
+    
+    var tophatPic = SKSpriteNode(imageNamed: "tophat")
+    var fruithatPic = SKSpriteNode(imageNamed: "fruit hat")
+    var wartpic = SKSpriteNode(imageNamed: "Wart")
+    var vikingPic = SKSpriteNode(imageNamed: "viking")
     
     
     
+    var grayDark = UIColor(red: 21/255, green: 21/255, blue: 21/255, alpha: 1)
+    var grayMid = UIColor(red: 33/255, green: 33/255, blue: 34/255, alpha: 1)
+    var grayMidLight = UIColor(red: 51/255, green: 51/255, blue: 51/255, alpha: 1)
+    var grayLight = UIColor(red: 105/255, green: 105/255, blue: 105/255, alpha: 1)
+    
+    
+    let blueBright = UIColor(red: 0, green: 223/255, blue: 252/255, alpha: 1)
+    let blueMid = UIColor(red: 0, green: 140/255, blue: 158/255, alpha: 1)
+    let blueDark = UIColor(red: 0, green: 50/255, blue: 60/255, alpha: 1)
+    
+    let yellowBright = UIColor(red: 234/255, green: 220/255, blue: 0/255, alpha: 1)
+    let yellowMid = UIColor(red: 161/255, green: 151/255, blue: 0/255, alpha: 1)
+    let yellowDark = UIColor(red: 102/255, green: 96/255, blue: 0/255, alpha: 1)
+    
+    let violetBright = UIColor(red: 167/255, green: 109/255, blue: 251/255, alpha: 1)
+    let violetMid = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let violetBright1 = UIColor(red: 165/255, green: 107/255, blue: 249/255, alpha: 1)
+    let violetMid1 = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark1 = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let violetBright2 = UIColor(red: 169/255, green: 111/255, blue: 253/255, alpha: 1)
+    let violetMid2 = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark2 = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let redBright = UIColor(red: 224/255, green: 0/255, blue: 40/255, alpha: 1)
+    let redMid = UIColor(red: 127/255, green: 0/255, blue: 22/255, alpha: 1)
+    let redDark = UIColor(red: 58/255, green: 0/255, blue: 10/255, alpha: 1)
+    
+    
+    let greenBright = UIColor(red: 0/255, green: 234/255, blue: 27/255, alpha: 1)
+    let greenMid = UIColor(red: 0/255, green: 131/255, blue: 15/255, alpha: 1)
+    let greenDark = UIColor(red: 0/255, green: 66/255, blue: 8/255, alpha: 1)
+    
+    let fuschiaBright = UIColor(red: 251/255, green: 109/255, blue: 233/255, alpha: 1)
+    let fuschiaMid = UIColor(red: 157/255, green: 68/255, blue: 146/255, alpha: 1)
+    let fuschiaDark = UIColor(red: 88/255, green: 38/255, blue: 82/255, alpha: 1)
+    
+    let orangeBright = UIColor(red: 234/255, green: 128/255, blue: 0/255, alpha: 1)
+    let orangeMid = UIColor(red: 164/255, green: 90/255, blue: 0/255, alpha: 1)
+    let orangeDark = UIColor(red: 112/255, green: 61/255, blue: 0/255, alpha: 1)
+    
+    var colorSwitch = SKColor.white
+    var accentSwitch = SKColor.white
     
     
     
+    var coin = SKSpriteNode(imageNamed: "Coin")
+    var coinCounter = 0
     
+
     
     
     
@@ -310,7 +425,90 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     override func didMove(to view: SKView) {
         
-//        UserDefaults.standard.set(0, forKey: "highscore")
+        initializeCoin()
+        if let x = UserDefaults.standard.object(forKey: "selectedPosition1") as? Int{
+            tailColor = x
+        }
+        if let x = UserDefaults.standard.object(forKey: "selectedPosition2") as? Int{
+            theme = x
+        }
+        if let x = UserDefaults.standard.object(forKey: "selectedPosition3") as? Int{
+            //selectedPosition3 = x
+        }
+        
+        
+        let colorBrightArray = [blueBright, yellowBright, violetBright, redBright, greenBright, fuschiaBright, orangeBright]
+        createTextureSets()
+
+        switch theme{
+        case 8:
+            ballTexture = blueTextures
+            spark?.particleTexture = blueSpray
+            colorSwitch = colorBrightArray[0]
+            break
+        case 9:
+            ballTexture = yellowTextures
+            spark?.particleTexture = yellowSpray
+            colorSwitch = colorBrightArray[1]
+            break
+        case 10:
+            ballTexture = violetTextures
+            spark?.particleTexture = violetSpray
+            colorSwitch = colorBrightArray[2]
+            break
+        case 11:
+            ballTexture = redTextures
+            spark?.particleTexture = redSpray
+            colorSwitch = colorBrightArray[3]
+            break
+        case 4:
+            ballTexture = greenTextures
+            spark?.particleTexture = greenSpray
+            colorSwitch = colorBrightArray[4]
+            break
+        case 5:
+            ballTexture = fuschiaTextures
+            spark?.particleTexture = fuschiaSpray
+            colorSwitch = colorBrightArray[5]
+            break
+        case 6:
+            ballTexture = orangeTextures
+            spark?.particleTexture = orangeSpray
+            colorSwitch = colorBrightArray[6]
+            break
+        default:
+            ballTexture = blueTextures
+            spark?.particleTexture = blueSpray
+            colorSwitch = colorBrightArray[0]
+            break
+        }
+        switch tailColor{
+        case 8:
+            accentSwitch = colorBrightArray[0]
+            break
+        case 9:
+            accentSwitch = colorBrightArray[1]
+            break
+        case 10:
+            accentSwitch = colorBrightArray[2]
+            break
+        case 11:
+            accentSwitch = colorBrightArray[3]
+            break
+        case 4:
+            accentSwitch = colorBrightArray[4]
+            break
+        case 5:
+            accentSwitch = colorBrightArray[5]
+            break
+        case 6:
+            accentSwitch = colorBrightArray[6]
+            break
+        default:
+            accentSwitch = colorBrightArray[0]
+            break
+        }
+        
         
         timer = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector((tail)), userInfo: nil, repeats: true)
         shadowTime = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector((miscGameLoop)), userInfo: nil, repeats: true)
@@ -320,22 +518,22 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         self.physicsWorld.contactDelegate = self
         
         //initialize border and background
-        self.backgroundColor = SKColor.darkGray
+        self.backgroundColor = grayMid
         let scenebody = SKPhysicsBody(edgeLoopFrom: self.frame)
         scenebody.friction = 0
         self.physicsBody = scenebody
         resetBorderContact()
         
         //initialize ball
-        
+        changeCostume()
         initializeBall()
         
 //        self.addChild(ballshaddow)
         
-        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height * 0.96), fontColor: darkBLueThing, fontSize: 40, text: "0", font: "Arial", label: scoreLabel)
+        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height * 0.96), fontColor: accentSwitch, fontSize: 40, text: "0", font: "Arial", label: scoreLabel)
         initializeTarget()
         initializeGround()
-        initializeLabel(position:  CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.6), fontColor: darkBLueThing, fontSize: 90, text: "", font: "Arial", label: youLose)
+        initializeLabel(position:  CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.6), fontColor: colorSwitch, fontSize: 130, text: "", font: "Arial", label: youLose)
         
         
         pauseSprite.position = CGPoint(x: self.frame.size.width*0.06, y: self.frame.size.height*0.04)
@@ -355,18 +553,35 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
 //        self.addChild(background)
         
         
-        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.85), fontColor: SKColor.black, fontSize: 80, text: "", font: "arial", label: pauseTimer)
+        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.85), fontColor: colorSwitch, fontSize: 80, text: "", font: "arial", label: pauseTimer)
         pauseTimer.zPosition = 109
         
-        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.8), fontColor: SKColor.black, fontSize: 40, text: "", font: "arial", label: pauseTimer2)
+        initializeLabel(position: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.8), fontColor: colorSwitch, fontSize: 40, text: "", font: "arial", label: pauseTimer2)
         pauseTimer2.zPosition = 109
         
-        if let x = UserDefaults.standard.object(forKey: "highscore") as? Int{
-            highscore = x
-            
+        if let x = UserDefaults.standard.object(forKey: "BeginnerHighscore") as? Int{
+            beginnerHighscore = x
+        }
+        if let x = UserDefaults.standard.object(forKey: "ClassicHighscore") as? Int{
+            classicHighscore = x
+        }
+        if let x = UserDefaults.standard.object(forKey: "HardcoreHighscore") as? Int{
+            hardcoreHighscore = x
         }
         
-        scoreLabel.text = "HighScore: " + "\(highscore)"
+        switch gameModes {
+        case 1:
+            scoreLabel.text = "Beginner HighScore: " + "\(beginnerHighscore)"
+            break
+        case 2:
+            scoreLabel.text = "Classic HighScore: " + "\(classicHighscore)"
+            break
+        case 3:
+            scoreLabel.text = "Hardcore HighScore: " + "\(hardcoreHighscore)"
+            break
+        default:
+            break
+        }
         
         spark?.particleBirthRate = 0
         self.addChild(spark!)
@@ -388,34 +603,54 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         classicButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
         classicButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
         classicButton.zPosition = 110
-        classicButton.size = CGSize(width: 600, height: 200)
+        classicButton.size = CGSize(width: 455, height: 135)
         
-        beginnerButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
-        beginnerButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
-        beginnerButton.zPosition = 110
-        beginnerButton.size = CGSize(width: 600, height: 200)
+        initializeLabel(position: CGPoint(x:classicButton.position.x,y:classicButton.position.y - 20), fontColor: accentSwitch, fontSize: 60, text: "", font: "Helvetica", label: classicLabel)
+        classicLabel.zPosition = 111
         
-        hardcoreButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
-        hardcoreButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.7)
-        hardcoreButton.zPosition = 110
-        hardcoreButton.size = CGSize(width: 600, height: 200)
+        customizeButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
+        customizeButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.55)
+        customizeButton.zPosition = 110
+        customizeButton.size = CGSize(width: 455, height: 135)
+        
+        initializeLabel(position: CGPoint(x:customizeButton.position.x,y:customizeButton.position.y - 20), fontColor: accentSwitch, fontSize: 60, text: "", font: "Helvetica", label: customizeLabel)
+        customizeLabel.zPosition = 111
         
         tutorialButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
-        tutorialButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.53)
+        tutorialButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.4)
         tutorialButton.zPosition = 110
-        tutorialButton.size = CGSize(width: 600, height: 200)
+        tutorialButton.size = CGSize(width: 455, height: 135)
+        
+        initializeLabel(position: CGPoint(x:tutorialButton.position.x,y:tutorialButton.position.y - 20), fontColor: accentSwitch, fontSize: 60, text: "", font: "Helvetica", label: statisticsLabel)
+        statisticsLabel.zPosition = 111
         
         playGameButton.anchorPoint = CGPoint(x:0.5, y: 0.5)
-        playGameButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.36)
+        playGameButton.position = CGPoint(x: self.frame.size.width*0.5, y: self.frame.size.height*0.25)
         playGameButton.zPosition = 110
-        playGameButton.size = CGSize(width: 600, height: 200)
+        playGameButton.size = CGSize(width: 455, height: 135)
+        
+        initializeLabel(position: CGPoint(x:playGameButton.position.x,y:playGameButton.position.y - 20), fontColor: accentSwitch, fontSize: 60, text: "", font: "Helvetica", label: playLabel)
+        playLabel.zPosition = 111
         
         pauseback.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
         pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0)
         pauseback.zPosition = 108
         self.addChild(pauseback)
         
-        highscorelimiter = highscore
+        
+        switch gameModes {
+        case 1:
+            highscorelimiter = beginnerHighscore
+            break
+        case 2:
+            highscorelimiter = classicHighscore
+            break
+        case 3:
+            highscorelimiter = hardcoreHighscore
+            break
+        default:
+            break
+        }
         
         
         do {
@@ -425,7 +660,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         catch {
             
         }
-
         
     }
     
@@ -461,40 +695,25 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                         ///////////////////////
                         ///////////////////////
                         
-                        if (positionOfTouch.x > tutorialButton.position.x - 300) && (positionOfTouch.x < tutorialButton.position.x + 300) {
-                            if (positionOfTouch.y > tutorialButton.position.y - 100) && (positionOfTouch.y < tutorialButton.position.y + 100) {
-                                tutorialRun()
+                        if (positionOfTouch.x > tutorialButton.position.x - 227) && (positionOfTouch.x < tutorialButton.position.x + 227) {
+                            if (positionOfTouch.y > tutorialButton.position.y - 64) && (positionOfTouch.y < tutorialButton.position.y + 64) {
+                                //tutorialRun()
                             }
                         }
-                        if (positionOfTouch.x > classicButton.position.x) && (positionOfTouch.x < classicButton.position.x + 300) {
-                            if (positionOfTouch.y > classicButton.position.y - 100) && (positionOfTouch.y < classicButton.position.y + 100) {
-                                removeSettings()
-                                gamemodeSwitch = true
-                                if gameModes == 3 {
-                                    gameModes = 1
-                                }
-                                else{
-                                    gameModes += 1
-                                }
-                                showSettings()
-                            }
-                        }
-                        if (positionOfTouch.x < classicButton.position.x) && (positionOfTouch.x > classicButton.position.x - 300) {
-                            if (positionOfTouch.y > classicButton.position.y - 100) && (positionOfTouch.y < classicButton.position.y + 100) {
-                                removeSettings()
-                                gamemodeSwitch = true
-                                if gameModes == 1 {
-                                    gameModes = 3
-                                }
-                                else{
-                                    gameModes -= 1
-                                }
-                                showSettings()
+                        if (positionOfTouch.x > classicButton.position.x - 227) && (positionOfTouch.x < classicButton.position.x + 227) {
+                            if (positionOfTouch.y > classicButton.position.y - 64) && (positionOfTouch.y < classicButton.position.y + 64) {
+                                
                             }
                         }
                         
-                        if (positionOfTouch.x > playGameButton.position.x - 300) && (positionOfTouch.x < playGameButton.position.x + 300) {
-                            if (positionOfTouch.y > playGameButton.position.y - 100) && (positionOfTouch.y < playGameButton.position.y + 100) {
+                        if (positionOfTouch.x > customizeButton.position.x - 227) && (positionOfTouch.x < customizeButton.position.x + 227) {
+                            if (positionOfTouch.y > customizeButton.position.y - 64) && (positionOfTouch.y < customizeButton.position.y + 64) {
+                                customizeRun()
+                            }
+                        }
+                        
+                        if (positionOfTouch.x > playGameButton.position.x - 227) && (positionOfTouch.x < playGameButton.position.x + 227) {
+                            if (positionOfTouch.y > playGameButton.position.y - 64) && (positionOfTouch.y < playGameButton.position.y + 64) {
                                 removeSettings()
                             }
                         }
@@ -505,7 +724,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
                     }
                 }
                 else if gamePaused == false{
-                    if jumpcount < 2{
+                    if jumpcount < jumpcountRestriction{
                         if gameover == false{
                             allowPause = true
                             
@@ -544,6 +763,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
             if wait == false {
                 if gameover == true {
                     playAgain()
+                    removeSettings()
                     gameover = false
                 }
             }
@@ -556,44 +776,121 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         }
     }
 
+    
+    
+    
+    
+    
     func tail() {
-        if jumpcount == 2 {
-            redVariance = 0
-            greenVariance = 95
-            blueVariance = 107
-            smoke?.particleBirthRate = 0
-        }
-        if jumpcount == 1 {
-            redVariance = 0
-            greenVariance = 140
-            blueVariance = 158
-            smoke?.particleBirthRate = 0
-        }
-        if jumpcount == 0 {
-            redVariance = 0
-            greenVariance = 223
-            blueVariance = 252
-            smoke?.particlePosition = ball.position
-            smoke?.particleBirthRate = 0
-        }
-        var marquer = SKShapeNode(circleOfRadius: 25)
-        marquer.position = self.ball.position
-        if gameover{
-            marquer.strokeColor = UIColor(red: (0 + redVariance)/255, green: (0 + greenVariance)/255, blue: (0 + blueVariance)/255, alpha: 1)
-        }
-        else {
-            marquer.strokeColor = UIColor(red: redVariance/255, green: greenVariance/255, blue:  blueVariance/255, alpha: 1)
-        }
         
+        let blueArray = [ blueBright, blueMid, blueDark, blueDark]
+        
+        let yellowArray = [yellowBright, yellowMid, yellowDark, yellowDark]
+        
+        let violetArray = [violetBright, violetMid, violetDark, violetDark]
+        
+        let violetArray1 = [violetBright1, violetMid1, violetDark1, violetDark1]
+        
+        let violetArray2 = [violetBright2, violetMid2, violetDark2, violetDark2]
+        
+        
+        let redArray = [redBright, redMid, redDark, redDark]
+        
+        let greenArray = [greenBright, greenMid, greenDark, greenDark]
+        
+        let fuschiaArray = [fuschiaBright, fuschiaMid, fuschiaDark, fuschiaDark]
+        
+        let orangeArray = [orangeBright, orangeMid, orangeDark, orangeDark]
+        
+        let colorSetArray = [blueArray, yellowArray, violetArray, redArray, greenArray, fuschiaArray, orangeArray]
+    
+        
+        
+        
+        var marquer = SKShapeNode(circleOfRadius: 25)
+        var marquer2 = SKShapeNode(circleOfRadius: 15)
+        var marquer3 = SKShapeNode(circleOfRadius: 15)
+        marquer.position = self.ball.position
+        marquer2.position = CGPoint(x:self.ball.position.x+(ball.physicsBody?.velocity.dy)!*0.03+10, y:self.ball.position.y+(ball.physicsBody?.velocity.dx)!*0.03+10)
+        marquer3.position = CGPoint(x:self.ball.position.x-(ball.physicsBody?.velocity.dy)!*0.03+10, y:self.ball.position.y-(ball.physicsBody?.velocity.dx)!*0.03+10)
+        switch tailColor{
+        case 8:
+            marquer.strokeColor = blueArray[jumpcount]
+            marquer2.strokeColor = blueArray[jumpcount]
+            marquer3.strokeColor = blueArray[jumpcount]
+
+            break
+        case 9:
+            marquer.strokeColor = yellowArray[jumpcount]
+            marquer2.strokeColor = yellowArray[jumpcount]
+            marquer3.strokeColor = yellowArray[jumpcount]
+
+            break
+        case 10:
+            marquer.strokeColor = violetArray[jumpcount]
+            marquer2.strokeColor = violetArray1[jumpcount]
+            marquer3.strokeColor = violetArray2[jumpcount]
+
+            break
+        case 11:
+            marquer.strokeColor = redArray[jumpcount]
+            marquer2.strokeColor = redArray[jumpcount]
+            marquer3.strokeColor = redArray[jumpcount]
+
+            break
+        case 4:
+            marquer.strokeColor = greenArray[jumpcount]
+            marquer2.strokeColor = greenArray[jumpcount]
+            marquer3.strokeColor = greenArray[jumpcount]
+            break
+        case 5:
+            marquer.strokeColor = fuschiaArray[jumpcount]
+            marquer2.strokeColor = fuschiaArray[jumpcount]
+            marquer3.strokeColor = fuschiaArray[jumpcount]
+
+            break
+        case 6:
+            marquer.strokeColor = orangeArray[jumpcount]
+            marquer2.strokeColor = orangeArray[jumpcount]
+            marquer3.strokeColor = orangeArray[jumpcount]
+
+            break
+        default:
+            break
+        }
         marquer.lineWidth = 25
         marquer.zPosition = 10
+        //marquer.blendMode = SKBlendMode.screen
+        marquer.run(SKAction.repeatForever(SKAction.rotate(byAngle: 5, duration: 2)))
+        marquer2.lineWidth = 25
+        marquer2.zPosition = 10
+        //marquer.blendMode = SKBlendMode.screen
+        marquer2.run(SKAction.repeatForever(SKAction.rotate(byAngle: 5, duration: 2)))
+        marquer3.lineWidth = 25
+        marquer3.zPosition = 10
+        //marquer.blendMode = SKBlendMode.screen
+        marquer3.run(SKAction.repeatForever(SKAction.rotate(byAngle: 5, duration: 2)))
         if tracerStop == false {
             self.addChild(marquer)
+            self.addChild(marquer2)
+            self.addChild(marquer3)
         }
         
         
         marquer.run(SKAction.scale(by: 0.01, duration: 2))
         marquer.run(SKAction.sequence([
+            SKAction.wait(forDuration: 1),
+            SKAction.fadeOut(withDuration: 1),
+            SKAction.removeFromParent()
+            ]))
+        marquer2.run(SKAction.scale(by: 0.01, duration: 2))
+        marquer2.run(SKAction.sequence([
+            SKAction.wait(forDuration: 1),
+            SKAction.fadeOut(withDuration: 1),
+            SKAction.removeFromParent()
+            ]))
+        marquer3.run(SKAction.scale(by: 0.01, duration: 2))
+        marquer3.run(SKAction.sequence([
             SKAction.wait(forDuration: 1),
             SKAction.fadeOut(withDuration: 1),
             SKAction.removeFromParent()
@@ -627,6 +924,28 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     ///////////////////////
     ///////////////////////
     //////Secondary////////
@@ -635,7 +954,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     
     
     func updateScore() {
-        score = 2 - jumpcount
         youLose.text = "\(timesTouched)"
     }
     
@@ -651,24 +969,40 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         
         score = 0
         jumpcount = 0
+        switch gameModes {
+        case 1:
+            jumpcount = 0
+            highscorelimiter = beginnerHighscore
+            break
+        case 2:
+            jumpcount = 0
+            highscorelimiter = classicHighscore
+            break
+        case 3:
+            jumpcount = -1
+            highscorelimiter = hardcoreHighscore
+            break
+        default:
+            break
+        }
         timesTouched = 0
         updateScore()
         allowPause = false
         jumpPower = 1000
-        highscorelimiter = highscore
         tapsInGame = 0
         canHit = true
         youLose.text = ""
         shadowTime = Timer.scheduledTimer(timeInterval: 0.1, target: self, selector: #selector((miscGameLoop)), userInfo: nil, repeats: true)
+    }
 
-        }
 
-    
+
+
     func respawnTarget() {
         target.run(SKAction.sequence([
             SKAction.scale(to: 0, duration: 0.2),
             SKAction.rotate(toAngle: 0, duration: 0),
-            SKAction.move(to: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2), duration: 0),
+            SKAction.move(to: CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.47), duration: 0),
             SKAction.scale(to:0.5, duration:0.15),
             SKAction.scale(to:1.2, duration:0.35),
             SKAction.scale(to:0.9, duration:0.05),
@@ -691,7 +1025,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         ball.physicsBody?.affectedByGravity = false
         ball.physicsBody?.velocity = CGVector(dx: 0, dy: 0)
         ball.physicsBody?.angularVelocity = 0
-        ball.texture = NeutralText
+        ball.texture = ballTexture[0]
         ball.run(SKAction.sequence([
             SKAction.run {
                 self.tracerStop = true
@@ -717,7 +1051,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     func resetBallContact() {
         ball.physicsBody?.categoryBitMask = PhysicsCategory.Ball
         ball.physicsBody?.collisionBitMask = PhysicsCategory.Border | PhysicsCategory.Platform | PhysicsCategory.ground
-        ball.physicsBody?.contactTestBitMask = PhysicsCategory.Platform
+        ball.physicsBody?.contactTestBitMask = PhysicsCategory.Platform | PhysicsCategory.coin
     }
     
     func resetGroundContact() {
@@ -755,7 +1089,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
             self.target.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
         }
         
-        if highscore > highscorelimiter{
+        if 100 > 101{
             if highscoreConfusion {
                 jumpPower = 850
                 highscoreConfusion = false
@@ -797,22 +1131,6 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         createEmitNode(position: from, Velocity: CGVector(dx: velocity, dy: velocity))
     }
     
-    func showInstruction(label: SKLabelNode, label2: SKLabelNode, line: SKShapeNode) {
-        
-        var intructions = SKAction.sequence([
-            SKAction.fadeOut(withDuration: 0),
-            SKAction.run {
-                label.text = "tap to                tap to"
-                label2.text = "jump left            jump right"
-            },
-            SKAction.fadeIn(withDuration: 1)
-            ])
-        label.run(intructions)
-        label2.run(intructions)
-        
-        line.run(SKAction.fadeIn(withDuration: 1))
-    }
-    
     func removeInstructions(label: SKLabelNode, label2: SKLabelNode, line: SKShapeNode) {
         label.run(SKAction.fadeOut(withDuration: 1))
         label2.run(SKAction.fadeOut(withDuration: 1))
@@ -831,7 +1149,7 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     }
     
     func initializeBall() {
-        ball.texture = NeutralText
+        ball.texture = ballTexture[0]
         ball.size = CGSize(width: 81, height: 81)
         ball.position = CGPoint(x: (self.frame.size.width/2) + 2, y: (self.frame.size.height*0.25) + 2)
         ball.physicsBody?.angularDamping = 1
@@ -840,13 +1158,39 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         ball.physicsBody?.linearDamping = 0
         ball.physicsBody?.mass = 10
         ball.physicsBody?.affectedByGravity = false
-        ball.zPosition = 100
+        ball.zPosition = 99
         resetBallContact()
         self.addChild(ball)
+        switch costume {
+        case 1:
+            tophatPic.size = CGSize(width: 81, height: 81)
+            tophatPic.position.y += 50
+            tophatPic.zPosition = 50
+            ball.addChild(tophatPic)
+            break
+        case 2:
+            fruithatPic.size = CGSize(width: 81, height: 81)
+            fruithatPic.position.y += 50
+            fruithatPic.zPosition = 50
+            ball.addChild(fruithatPic)
+            break
+        case 3:
+            wartpic.size = CGSize(width: 81, height: 81)
+            wartpic.zPosition = 50
+            ball.addChild(wartpic)
+            break
+        case 4:
+            vikingPic.size = CGSize(width: 81, height: 131)
+            vikingPic.zPosition = 50
+            ball.addChild(vikingPic)
+            break
+        default:
+            break
+        }
     }
     
     func initializeTarget() {
-        target.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
+        target.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.47)
         target.lineWidth = 5
         target.strokeColor = SKColor.white
         target.fillColor = SKColor.white
@@ -860,9 +1204,9 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     }
     
     func initializeGround() {
-        ground.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.04)
-        ground.fillColor = darkBLueThing
-        ground.strokeColor = darkBLueThing
+        ground.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height*0.1)
+        ground.fillColor = colorSwitch
+        ground.strokeColor = colorSwitch
         ground.lineWidth = 15
         ground.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 800, height: 100))
         ground.physicsBody?.affectedByGravity = false
@@ -879,7 +1223,8 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     func showPauseMenu() {
         gamePaused = true
         pause()
-        pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0.25)
+        pauseback.fillColor = UIColor(red: 255/255, green: 255/255, blue: 255/255, alpha: 0.5)
+        pauseback.run(SKAction.fadeIn(withDuration: 0.5))
         self.pauseSprite.zPosition = 120
         self.pauseTimer.text = "Paused"
         self.pauseTimer2.text = "Tap the pause icon to resume"
@@ -893,7 +1238,8 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         self.pauseTimer.text = ""
         self.pauseTimer2.text = ""
         self.allowPause = true
-        self.pauseback.fillColor = UIColor(red: 255, green: 255, blue: 255, alpha: 0)
+        pauseback.run(SKAction.fadeOut(withDuration: 0.5))
+        
         
     }
     
@@ -913,10 +1259,10 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         
 
         
-        pause()
         pauseback.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+        pauseback.run(SKAction.fadeIn(withDuration: 0.5))
         gamePaused = true
-        self.pauseTimer.fontColor = darkBLueThing
+        self.pauseTimer.fontColor = colorSwitch
         self.settingsIsShown = true
         self.cog.color = SKColor.white
         
@@ -925,18 +1271,22 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         self.addChild(tutorialButton)
         switch gameModes {
         case 1:
-            self.addChild(beginnerButton)
             break
         case 2:
             self.addChild(classicButton)
             break
         case 3:
-            self.addChild(hardcoreButton)
             break
         default:
             break
         }
+        self.addChild(customizeButton)
         self.addChild(playGameButton)
+        
+        self.classicLabel.text = "GameMode"
+        self.customizeLabel.text = "Customize"
+        self.statisticsLabel.text = "Statistics"
+        self.playLabel.text = "Play"
         gamemodeSwitch = false
         
         
@@ -945,28 +1295,51 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
     }
     
     func removeSettings() {
-        unPause()
+        
         gamePaused = false
-        pauseback.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
+        pauseback.run(SKAction.fadeOut(withDuration: 0.5))
         gamePaused = false
         self.pauseTimer.text = ""
         self.settingsIsShown = false
         tutorialButton.removeFromParent()
         switch gameModes {
         case 1:
-            beginnerButton.removeFromParent()
+            scoreLabel.text = "Beginner HighScore: " + "\(beginnerHighscore)"
+
             break
         case 2:
             classicButton.removeFromParent()
+            jumpcountRestriction = 2
+            scoreLabel.text = "Classic HighScore: " + "\(classicHighscore)"
+
             break
-        case 3:
-            hardcoreButton.removeFromParent()
+            scoreLabel.text = "Hardcore HighScore: " + "\(hardcoreHighscore)"
+
             break
         default:
             break
         }
-        
+        self.classicLabel.text = ""
+        self.customizeLabel.text = ""
+        self.statisticsLabel.text = ""
+        self.playLabel.text = ""
+        customizeButton.removeFromParent()
         playGameButton.removeFromParent()
+    }
+    
+    func showGameover() {
+        if self.timesTouched == 1 {
+            self.youLose.text = "\(self.timesTouched)" + " Touch!"
+        }
+        else {
+            self.youLose.text = "\(self.timesTouched)" + " Touches!"
+        }
+        pauseback.fillColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0.6)
+        pauseback.run(SKAction.fadeIn(withDuration: 0.5))
+    }
+    
+    func removeGameover() {
+        pauseback.run(SKAction.fadeOut(withDuration: 0.5))
     }
     
     
@@ -979,13 +1352,158 @@ class wallJumperGame: SKScene, SKPhysicsContactDelegate{
         self.view?.presentScene(newGame)
     }
     
+    func customizeRun() {
+        self.removeAllChildren()
+        var newGame = customizeMenu(size: self.size)
+        newGame.scaleMode = scaleMode
+        self.view?.presentScene(newGame)
+    }
+    
+    func changeCostume() {
+        if let x = UserDefaults.standard.object(forKey: "selectedPosition4") as? Int{
+            hatSelection = x
+        }
+        switch hatSelection {
+        case 9:
+            costume = 1
+            break
+        case 10:
+            costume = 2
+            break
+        case 11:
+            costume = 3
+            break
+        case 4:
+            costume = 4
+            break
+        default:
+            costume = 0
+            break
+        }
+    }
     
 
+    func createTextureSets() {
+    
+        let neutralBlue = SKTexture(imageNamed: "blueNeutral")
+        let happyBlue = SKTexture(imageNamed: "blueHappy")
+        let deadBlue = SKTexture(imageNamed: "blueDead")
+        blueTextures.append(neutralBlue)
+        blueTextures.append(happyBlue)
+        blueTextures.append(deadBlue)
+        
+        let neutralYellow = SKTexture(imageNamed: "YellowNeutral")
+        let happyYellow = SKTexture(imageNamed: "YellowHappy")
+        let deadYellow = SKTexture(imageNamed: "YellowDead")
+        yellowTextures.append(neutralYellow)
+        yellowTextures.append(happyYellow)
+        yellowTextures.append(deadYellow)
+        
+        let neutralViolet = SKTexture(imageNamed: "PurpleNeutral")
+        let happyViolet = SKTexture(imageNamed: "PurpleHappy")
+        let deadViolet = SKTexture(imageNamed: "PurpleDead")
+        violetTextures.append(neutralViolet)
+        violetTextures.append(happyViolet)
+        violetTextures.append(deadViolet)
+        
+        let neutralRed = SKTexture(imageNamed: "RedNeutral")
+        let happyRed = SKTexture(imageNamed: "Redhappy")
+        let deadRed = SKTexture(imageNamed: "RedDead")
+        redTextures.append(neutralRed)
+        redTextures.append(happyRed)
+        redTextures.append(deadRed)
+        
+        let neutralGreen = SKTexture(imageNamed: "GreenNeutral")
+        let happyGreen = SKTexture(imageNamed: "GreenHappy")
+        let deadGreen = SKTexture(imageNamed: "GreenDead")
+        greenTextures.append(neutralGreen)
+        greenTextures.append(happyGreen)
+        greenTextures.append(deadGreen)
+        
+        let neutralFuschia = SKTexture(imageNamed: "FuschiaNeutral")
+        let happyFuschia = SKTexture(imageNamed: "Fuschiahappy")
+        let deadFuschia = SKTexture(imageNamed: "FuschiaDead")
+        fuschiaTextures.append(neutralFuschia)
+        fuschiaTextures.append(happyFuschia)
+        fuschiaTextures.append(deadFuschia)
+        
+        let neutralOrange = SKTexture(imageNamed: "OrangeNeutral")
+        let happyOrange = SKTexture(imageNamed: "OrangeHappy")
+        let deadOrange = SKTexture(imageNamed: "OrangeDead")
+        orangeTextures.append(neutralOrange)
+        orangeTextures.append(happyOrange)
+        orangeTextures.append(deadOrange)
+
+        
+        
+        
+        
+
+        
+    }
     
     
     
+    func initializeCoin() {
+        coin.size = CGSize(width: 50, height: 50)
+        coin.zPosition = 101
+        coin.position = CGPoint(x: self.frame.size.width/2, y: self.frame.size.height/2)
+        coin.alpha = 0
+        coin.physicsBody = SKPhysicsBody(circleOfRadius: 25)
+        coin.physicsBody?.affectedByGravity = false
+        coin.physicsBody?.categoryBitMask = PhysicsCategory.None
+        coin.physicsBody?.contactTestBitMask = PhysicsCategory.None
+        coin.physicsBody?.collisionBitMask = PhysicsCategory.None
+        //self.addChild(coin)
+    }
     
-    
+    func respawnCoin() {
+        self.coin.run(SKAction.sequence([
+            SKAction.run {
+                self.coin.physicsBody?.categoryBitMask = PhysicsCategory.None
+                self.coin.physicsBody?.contactTestBitMask = PhysicsCategory.None
+                self.coin.physicsBody?.collisionBitMask = PhysicsCategory.None
+            },
+            SKAction.scale(to: 1.2, duration: 0.1),
+            SKAction.scale(to: 0.8, duration: 0.1),
+            SKAction.scale(to: 0, duration: 0.1)
+        ]))
+        let coinChance:UInt32 = arc4random_uniform(UInt32(3))
+        let coinStat:CGFloat = CGFloat(coinChance)
+        if coinStat == 1 {
+            var coinPosition = CGPoint(x:0,y:0)
+            var chooseRandom = true
+            while chooseRandom == true {
+                let randomNum:UInt32 = arc4random_uniform(UInt32(100))
+                let randomNum2:UInt32 = arc4random_uniform(UInt32(300))
+                
+                let randomX:CGFloat = CGFloat(randomNum)
+                let randomY:CGFloat = CGFloat(randomNum2)
+                
+                //if (randomX < self.ball.position.x + 25) && (randomX > self.ball.position.x - 25) && (randomY < self.ball.position.y + 25) && (randomY > self.ball.position.y - 25) {
+                    
+                //}
+                //else {
+                    chooseRandom = false
+                    coinPosition = CGPoint(x:randomX ,y:randomY)
+                    coin.position = coinPosition
+                //}
+            }
+        }
+        
+        coin.alpha = 1
+        coin.run(SKAction.sequence([
+            SKAction.wait(forDuration: 0.3),
+            SKAction.scale(to: 0.8, duration: 0.1),
+            SKAction.scale(to: 1.2, duration: 0.1),
+            SKAction.scale(to: 1, duration: 0.1),
+            SKAction.run {
+                self.coin.physicsBody?.categoryBitMask = PhysicsCategory.coin
+                self.coin.physicsBody?.contactTestBitMask = PhysicsCategory.Ball
+                self.coin.physicsBody?.collisionBitMask = PhysicsCategory.None
+            }
+            ]))
+    }
     
     
     

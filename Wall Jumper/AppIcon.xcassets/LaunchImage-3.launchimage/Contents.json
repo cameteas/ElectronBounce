@@ -3,6 +3,7 @@
     {
       "orientation" : "portrait",
       "idiom" : "iphone",
+      "filename" : "iconImage.png",
       "minimum-system-version" : "7.0",
       "subtype" : "retina4",
       "scale" : "2x"

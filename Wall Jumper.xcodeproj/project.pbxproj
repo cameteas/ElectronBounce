@@ -24,6 +24,7 @@
 		7EA3AF281E3823FC005D8DA1 /* spark.png in Resources */ = {isa = PBXBuildFile; fileRef = 7EA3AF261E3823FC005D8DA1 /* spark.png */; };
 		7ECF6ECC1E3681B70077FB61 /* AppIcon.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */; };
 		7ED9D8ED1E38DDF40054F138 /* tutorial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED9D8EC1E38DDF40054F138 /* tutorial.swift */; };
+		7EE97A731E46BBAF008302C1 /* customizeMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EE97A721E46BBAF008302C1 /* customizeMenu.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -67,6 +68,7 @@
 		7EA3AF261E3823FC005D8DA1 /* spark.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = spark.png; sourceTree = "<group>"; };
 		7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = AppIcon.xcassets; sourceTree = "<group>"; };
 		7ED9D8EC1E38DDF40054F138 /* tutorial.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = tutorial.swift; path = ../tutorial.swift; sourceTree = "<group>"; };
+		7EE97A721E46BBAF008302C1 /* customizeMenu.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = customizeMenu.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,18 +121,14 @@
 			children = (
 				7ECF6ECB1E3681B70077FB61 /* AppIcon.xcassets */,
 				7E37264B1E32F3BB008FF69C /* AppDelegate.swift */,
-				7E37264D1E32F3BB008FF69C /* GameScene.sks */,
-				7E37264F1E32F3BB008FF69C /* Actions.sks */,
+				7EE97A741E479A2E008302C1 /* extraneous */,
 				7E4DF4D61E345C6800B48F07 /* MyParticle.sks */,
 				7EA3AF251E3823FC005D8DA1 /* smoke.sks */,
-				7EA3AF261E3823FC005D8DA1 /* spark.png */,
 				7ED9D8EC1E38DDF40054F138 /* tutorial.swift */,
+				7EE97A721E46BBAF008302C1 /* customizeMenu.swift */,
 				7E37267F1E32F6E0008FF69C /* wallJumperGame.swift */,
 				7ECF6ECD1E36B4670077FB61 /* music */,
-				7E3726511E32F3BB008FF69C /* GameScene.swift */,
 				7E3726531E32F3BB008FF69C /* GameViewController.swift */,
-				7E3726551E32F3BB008FF69C /* Main.storyboard */,
-				7E37265A1E32F3BB008FF69C /* LaunchScreen.storyboard */,
 				7E37265D1E32F3BB008FF69C /* Info.plist */,
 			);
 			path = "Wall Jumper";
@@ -161,6 +159,19 @@
 				7E8A9C7B1E391EA000264FCD /* sample.mp3 */,
 			);
 			name = music;
+			sourceTree = "<group>";
+		};
+		7EE97A741E479A2E008302C1 /* extraneous */ = {
+			isa = PBXGroup;
+			children = (
+				7E37264D1E32F3BB008FF69C /* GameScene.sks */,
+				7E37264F1E32F3BB008FF69C /* Actions.sks */,
+				7EA3AF261E3823FC005D8DA1 /* spark.png */,
+				7E3726511E32F3BB008FF69C /* GameScene.swift */,
+				7E3726551E32F3BB008FF69C /* Main.storyboard */,
+				7E37265A1E32F3BB008FF69C /* LaunchScreen.storyboard */,
+			);
+			name = extraneous;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -307,6 +318,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7EE97A731E46BBAF008302C1 /* customizeMenu.swift in Sources */,
 				7E3726801E32F6E0008FF69C /* wallJumperGame.swift in Sources */,
 				7E3726521E32F3BB008FF69C /* GameScene.swift in Sources */,
 				7E3726541E32F3BB008FF69C /* GameViewController.swift in Sources */,

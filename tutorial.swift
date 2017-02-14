@@ -149,10 +149,9 @@ class tutorial: SKScene, SKPhysicsContactDelegate{
     ///////////////////////
     ///////////////////////
     
-    var NeutralText = SKTexture(imageNamed: "Neutral2")
-    var HappyText = SKTexture(imageNamed: "Happy2")
-    var DeadText = SKTexture(imageNamed: "Dead2")
-    var focusedText = SKTexture(imageNamed: "focused")
+    var NeutralText = SKTexture(imageNamed: "blueNeutral")
+    var HappyText = SKTexture(imageNamed: "blueHappy")
+    var DeadText = SKTexture(imageNamed: "blueDead")
     
     var ball = SKSpriteNode()
     var ballshaddow = SKShapeNode(circleOfRadius: 25)
