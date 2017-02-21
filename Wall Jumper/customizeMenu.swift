@@ -52,11 +52,17 @@ class customizeMenu: SKScene {
     var coinLight = UIColor(red: 211/255, green: 163/255, blue: 194/255, alpha: 1)
     
     
-    var boxList: Array<CGPoint> = []
+    var boxPositions: Array<CGPoint> = []
     var lockList1: Array<CGPoint> = []
     var lockList2: Array<CGPoint> = []
     var lockList3: Array<CGPoint> = []
     var lockList4: Array<CGPoint> = []
+    
+    var itemBoxList1: Array<SKSpriteNode> = []
+    var itemBoxList2: Array<SKSpriteNode> = []
+    var itemBoxList3: Array<SKSpriteNode> = []
+    var itemBoxList4: Array<SKSpriteNode> = []
+    
     
     let selected1 = SKSpriteNode(imageNamed: "SelectedBox")
     let selected2 = SKSpriteNode(imageNamed: "SelectedBox")
@@ -94,7 +100,53 @@ class customizeMenu: SKScene {
     var molePic = SKSpriteNode(imageNamed: "Wart")
     var fruitHatPic = SKSpriteNode(imageNamed: "fruit hat")
     var vikingHatPic = SKSpriteNode(imageNamed: "viking")
-
+    
+    let blueBright = UIColor(red: 0, green: 223/255, blue: 252/255, alpha: 1)
+    let blueMid = UIColor(red: 0, green: 140/255, blue: 158/255, alpha: 1)
+    let blueDark = UIColor(red: 0, green: 50/255, blue: 60/255, alpha: 1)
+    
+    let yellowBright = UIColor(red: 234/255, green: 220/255, blue: 0/255, alpha: 1)
+    let yellowMid = UIColor(red: 161/255, green: 151/255, blue: 0/255, alpha: 1)
+    let yellowDark = UIColor(red: 102/255, green: 96/255, blue: 0/255, alpha: 1)
+    
+    let violetBright = UIColor(red: 167/255, green: 109/255, blue: 251/255, alpha: 1)
+    let violetMid = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let violetBright1 = UIColor(red: 165/255, green: 107/255, blue: 249/255, alpha: 1)
+    let violetMid1 = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark1 = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let violetBright2 = UIColor(red: 169/255, green: 111/255, blue: 253/255, alpha: 1)
+    let violetMid2 = UIColor(red: 111/255, green: 73/255, blue: 167/255, alpha: 1)
+    let violetDark2 = UIColor(red: 70/255, green: 46/255, blue: 106/255, alpha: 1)
+    
+    let redBright = UIColor(red: 224/255, green: 0/255, blue: 40/255, alpha: 1)
+    let redMid = UIColor(red: 127/255, green: 0/255, blue: 22/255, alpha: 1)
+    let redDark = UIColor(red: 58/255, green: 0/255, blue: 10/255, alpha: 1)
+    
+    
+    let greenBright = UIColor(red: 0/255, green: 234/255, blue: 27/255, alpha: 1)
+    let greenMid = UIColor(red: 0/255, green: 131/255, blue: 15/255, alpha: 1)
+    let greenDark = UIColor(red: 0/255, green: 66/255, blue: 8/255, alpha: 1)
+    
+    let fuschiaBright = UIColor(red: 251/255, green: 109/255, blue: 233/255, alpha: 1)
+    let fuschiaMid = UIColor(red: 157/255, green: 68/255, blue: 146/255, alpha: 1)
+    let fuschiaDark = UIColor(red: 88/255, green: 38/255, blue: 82/255, alpha: 1)
+    
+    let orangeBright = UIColor(red: 234/255, green: 128/255, blue: 0/255, alpha: 1)
+    let orangeMid = UIColor(red: 164/255, green: 90/255, blue: 0/255, alpha: 1)
+    let orangeDark = UIColor(red: 112/255, green: 61/255, blue: 0/255, alpha: 1)
+    
+    
+    var colorSwitch = SKColor.white
+    var accentSwitch = SKColor.white
+    
+    
+    var ball = SKSpriteNode(imageNamed: "blueNeutral")
+    var tail = 0
+    var hat = 0
+    
     
     override func didMove(to view: SKView) {
         
@@ -103,11 +155,12 @@ class customizeMenu: SKScene {
         }
         
         
+        
         if let x = UserDefaults.standard.object(forKey: "selectedPosition1") as? Int{
-            selectedPosition1 = x
+            selectedPosition2 = x
         }
         if let x = UserDefaults.standard.object(forKey: "selectedPosition2") as? Int{
-            selectedPosition2 = x
+            selectedPosition1 = x
         }
         if let x = UserDefaults.standard.object(forKey: "selectedPosition3") as? Int{
             selectedPosition3 = x
@@ -127,7 +180,7 @@ class customizeMenu: SKScene {
         var cycleCounter = 0
         
         for frame in frameList {
-            for box in boxList {
+            for box in boxPositions {
                 createBox(Position: box, frame: frame)
             }
             createBacking(frame: frame)
@@ -135,6 +188,14 @@ class customizeMenu: SKScene {
             cycleCounter += 1
         }
 
+        for box in itemBoxList1 {
+            box.run(SKAction.sequence([
+                SKAction.scale(to: 0, duration: 0),
+                SKAction.scale(to: 0.8, duration: 0.1),
+                SKAction.scale(to: 1.2, duration: 0.1),
+                SKAction.scale(to: 1, duration: 0.1),
+                ]))
+        }
         
         self.backgroundColor = grayDark
         frame1.position = CGPoint(x:self.frame.size.width*0, y:self.frame.size.height*0)
@@ -168,8 +229,8 @@ class customizeMenu: SKScene {
         self.addChild(page4Display)
         
         
-        initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: SKColor.cyan, fontSize: 100, text: "Accent Colour", label: tailLabel)
-        initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: SKColor.cyan, fontSize: 100, text: "Main Colour", label: themeLabel)
+        initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: SKColor.cyan, fontSize: 70, text: "Accent Colour", label: tailLabel)
+        initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: SKColor.cyan, fontSize: 70, text: "Main Colour", label: themeLabel)
         initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: SKColor.cyan, fontSize: 100, text: "Particle", label: particleLabel)
         initializeLabel(position: CGPoint(x: self.frame.size.width*0.5,y: self.frame.size.height*0.92), fontColor: blueLight, fontSize: 100, text: "Hat", label: hatLabel)
         
@@ -179,6 +240,10 @@ class customizeMenu: SKScene {
         frame4.addChild(hatLabel)
         
         
+        ball.position = CGPoint(x:self.frame.size.width*0.3, y: self.frame.size.height*0.7)
+        ball.size = CGSize(width: 100, height: 100)
+        self.addChild(ball)
+        drawMarquee()
         
     }
     
@@ -224,7 +289,7 @@ class customizeMenu: SKScene {
         touchEndedSwipe()
         if isSwiped == false {
             var cycleCounter = 0
-            for box in boxList {
+            for box in boxPositions {
                 if positionOfInitialTouch.x > box.x - 70 {
                     if positionOfInitialTouch.x < box.x + 70 {
                         if positionOfInitialTouch.y > box.y - 70 {
@@ -232,15 +297,17 @@ class customizeMenu: SKScene {
                                 switch frameNum {
                                 case 1:
                                     
-                                    if lockList1[cycleCounter] == CGPoint(x: -500, y: -500){
-                                        selected1.position = box
+                                    if lockList1[cycleCounter] == CGPoint(x: -20000, y: -20000){
+                                        selected1.position = CGPoint(x: 0, y: 0)
+                                        selected1.removeFromParent()
+                                        itemBoxList1[cycleCounter].addChild(selected1)
                                         selectedPosition1 = cycleCounter
                                         UserDefaults.standard.set(selectedPosition1, forKey: "selectedPosition1")
                                     }
                                     break
                                 case 2:
                                     
-                                    if lockList2[cycleCounter] == CGPoint(x: -500, y: -500){
+                                    if lockList2[cycleCounter] == CGPoint(x: -20000, y: -20000){
                                         selected2.position = box
                                         selectedPosition2 = cycleCounter
                                         UserDefaults.standard.set(selectedPosition2, forKey: "selectedPosition2")
@@ -248,7 +315,7 @@ class customizeMenu: SKScene {
                                     break
                                 case 3:
                                     
-                                    if lockList3[cycleCounter] == CGPoint(x: -500, y: -500){
+                                    if lockList3[cycleCounter] == CGPoint(x: -20000, y: -20000){
                                         selected3.position = box
                                         selectedPosition3 = cycleCounter
                                         UserDefaults.standard.set(selectedPosition3, forKey: "selectedPosition3")
@@ -256,7 +323,7 @@ class customizeMenu: SKScene {
                                     break
                                 case 4:
                                     
-                                    if lockList4[cycleCounter] == CGPoint(x: -500, y: -500){
+                                    if lockList4[cycleCounter] == CGPoint(x: -20000, y: -20000){
                                         selected4.position = box
                                         selectedPosition4 = cycleCounter
                                         UserDefaults.standard.set(selectedPosition4, forKey: "selectedPosition4")
@@ -304,69 +371,103 @@ class customizeMenu: SKScene {
     //////////////////////////////
     
     
+    let lockHide = CGPoint(x: -20000, y: -20000)
     
     func unlockShit() {
         
-        lockList1 = boxList
-        lockList2 = boxList
-        lockList3 = boxList
-        lockList4 = boxList
+        lockList1 = boxPositions
+        lockList2 = boxPositions
+        lockList3 = boxPositions
+        lockList4 = boxPositions
         
         
-        lockList1[8] = CGPoint(x:-500,y: -500)
-        lockList2[8] = CGPoint(x:-500,y: -500)
-        lockList3[8] = CGPoint(x:-500,y: -500)
-        lockList4[8] = CGPoint(x:-500,y: -500)
+        lockList1[8] = lockHide
+        lockList2[8] = lockHide
+        lockList3[8] = lockHide
+        lockList4[8] = lockHide
         
         if classicHighScore > 2 {
-            lockList1[9] = CGPoint(x:-500,y: -500)
+            lockList1[9] = lockHide
             if classicHighScore > 8 {
-                lockList1[10] = CGPoint(x:-500,y: -500)
+                lockList1[10] = lockHide
                 if classicHighScore > 16 {
-                    lockList1[11] = CGPoint(x:-500,y: -500)
+                    lockList1[11] = lockHide
                     if classicHighScore > 24 {
-                        lockList1[4] = CGPoint(x:-500,y: -500)
+                        lockList1[4] = lockHide
                     }
                 }
             }
         }
         
         if classicHighScore > 4 {
-            lockList2[9] = CGPoint(x:-500,y: -500)
+            lockList2[9] = lockHide
             if classicHighScore > 12 {
-                lockList2[10] = CGPoint(x:-500,y: -500)
+                lockList2[10] = lockHide
                 if classicHighScore > 18 {
-                    lockList2[11] = CGPoint(x:-500,y: -500)
+                    lockList2[11] = lockHide
                     if classicHighScore > 28 {
-                        lockList2[4] = CGPoint(x:-500,y: -500)
+                        lockList2[4] = lockHide
                     }
                 }
             }
         }
         
         if classicHighScore > 10 {
-            lockList4[9] = CGPoint(x:-500,y: -500)
+            lockList4[9] = lockHide
             if classicHighScore > 20 {
-                lockList4[10] = CGPoint(x:-500,y: -500)
+                lockList4[10] = lockHide
                 if classicHighScore > 30 {
-                    lockList4[11] = CGPoint(x:-500,y: -500)
-                    if classicHighScore > 50 {
-                        lockList4[4] = CGPoint(x:-500,y: -500)
+                    lockList4[11] = lockHide
+                    if classicHighScore > 40 {
+                        lockList4[4] = lockHide
                     }
                 }
             }
         }
+        var lockCount = 0
         for lock in lockList1 {
-            createLock(Position: lock, frame: frame1)
+            if lock == CGPoint(x: -20000, y: -20000) {
+                createLock(Position: lock, frame: frame1, parent: itemBoxList1, parentIndex: lockCount)
+                lockCount += 1
+            }
+            else {
+                createLock(Position: CGPoint(x:0 ,y:0), frame: frame1, parent: itemBoxList1, parentIndex: lockCount)
+                lockCount += 1
+            }
+            
         }
+        lockCount = 0
         for lock in lockList2 {
-            createLock(Position: lock, frame: frame2)
+            if lock == CGPoint(x: -20000, y: -20000) {
+                createLock(Position: lock, frame: frame2, parent: itemBoxList2, parentIndex: lockCount)
+                lockCount += 1
+            }
+            else {
+                createLock(Position: CGPoint(x:0 ,y:0), frame: frame2, parent: itemBoxList2, parentIndex: lockCount)
+                lockCount += 1
+            }
         }
+        lockCount = 0
         for lock in lockList3 {
-            createLock(Position: lock, frame: frame3)
+            if lock == CGPoint(x: -20000, y: -20000) {
+                createLock(Position: lock, frame: frame3, parent: itemBoxList3, parentIndex: lockCount)
+                lockCount += 1
+            }
+            else {
+                createLock(Position: CGPoint(x:0 ,y:0), frame: frame3, parent: itemBoxList3, parentIndex: lockCount)
+                lockCount += 1
+            }
         }
+        lockCount = 0
         for lock in lockList4 {
-            createLock(Position: lock, frame: frame4)
+            if lock == CGPoint(x: -20000, y: -20000) {
+                createLock(Position: lock, frame: frame4, parent: itemBoxList4, parentIndex: lockCount)
+                lockCount += 1
+            }
+            else {
+                createLock(Position: CGPoint(x:0 ,y:0), frame: frame4, parent: itemBoxList4, parentIndex: lockCount)
+                lockCount += 1
+            }
         }
     }
     
@@ -375,68 +476,59 @@ class customizeMenu: SKScene {
     
     
     func InitializeImages() {
+        
         func page1() {
-            blueTail.position = boxList[8]
             blueTail.size = CGSize(width: 120, height: 120)
             blueTail.zPosition = 110
-            frame1.addChild(blueTail)
+            itemBoxList1[8].addChild(blueTail)
             if classicHighScore > 2 {
-                yellowTail.position = boxList[9]
                 yellowTail.size = CGSize(width: 120, height: 120)
                 yellowTail.zPosition = 110
-                frame1.addChild(yellowTail)
+                itemBoxList1[9].addChild(yellowTail)
                 if classicHighScore > 8 {
-                    purpleTail.position = boxList[10]
                     purpleTail.size = CGSize(width: 120, height: 120)
                     purpleTail.zPosition = 110
-                    frame1.addChild(purpleTail)
+                    itemBoxList1[10].addChild(purpleTail)
                     if classicHighScore > 16 {
-                        redTail.position = boxList[11]
                         redTail.size = CGSize(width: 120, height: 120)
                         redTail.zPosition = 110
-                        frame1.addChild(redTail)
+                        itemBoxList1[11].addChild(redTail)
                         if classicHighScore > 24 {
-                            greenTail.position = boxList[4]
                             greenTail.size = CGSize(width: 120, height: 120)
                             greenTail.zPosition = 110
-                            frame1.addChild(greenTail)
+                            itemBoxList1[4].addChild(greenTail)
                         }
                     }
                 }
             }
         }
         func page2() {
-            blueCharacter.position = boxList[8]
             blueCharacter.size = CGSize(width: 120, height: 120)
             blueCharacter.zPosition = 110
-            frame2.addChild(blueCharacter)
+            itemBoxList2[8].addChild(blueCharacter)
             if classicHighScore > 4 {
-                yellowCharacter.position = boxList[9]
                 yellowCharacter.size = CGSize(width: 120, height: 120)
                 yellowCharacter.zPosition = 110
-                frame2.addChild(yellowCharacter)
+                itemBoxList2[9].addChild(yellowCharacter)
                 if classicHighScore > 12 {
-                    purpleCharacter.position = boxList[10]
                     purpleCharacter.size = CGSize(width: 120, height: 120)
                     purpleCharacter.zPosition = 110
-                    frame2.addChild(purpleCharacter)
+                    itemBoxList2[10].addChild(purpleCharacter)
                     if classicHighScore > 18 {
-                        redCharacter.position = boxList[11]
                         redCharacter.size = CGSize(width: 120, height: 120)
                         redCharacter.zPosition = 110
-                        frame2.addChild(redCharacter)
+                        itemBoxList2[11].addChild(redCharacter)
                         if classicHighScore > 28 {
-                            greenCharacter.position = boxList[4]
                             greenCharacter.size = CGSize(width: 120, height: 120)
                             greenCharacter.zPosition = 110
-                            frame2.addChild(greenCharacter)
+                            itemBoxList2[4].addChild(greenCharacter)
                         }
                     }
                 }
             }
         }
         func page3() {
-            blueSpray.position = boxList[8]
+            blueSpray.position = boxPositions[8]
             blueSpray.size = CGSize(width: 120, height: 120)
             blueSpray.zPosition = 110
             frame3.addChild(blueSpray)
@@ -444,25 +536,21 @@ class customizeMenu: SKScene {
         func page4() {
             
             if classicHighScore > 10 {
-                tophatPic.position = boxList[9]
                 tophatPic.size = CGSize(width: 120, height: 120)
                 tophatPic.zPosition = 110
-                frame4.addChild(tophatPic)
+                itemBoxList4[9].addChild(tophatPic)
                 if classicHighScore > 20 {
-                    fruitHatPic.position = boxList[10]
                     fruitHatPic.size = CGSize(width: 120, height: 120)
                     fruitHatPic.zPosition = 110
-                    frame4.addChild(fruitHatPic)
+                    itemBoxList4[10].addChild(fruitHatPic)
                     if classicHighScore > 30 {
-                        molePic.position = boxList[11]
                         molePic.size = CGSize(width: 120, height: 120)
                         molePic.zPosition = 110
-                        frame4.addChild(molePic)
-                        if classicHighScore > 50 {
-                            vikingHatPic.position = boxList[4]
+                        itemBoxList4[11].addChild(molePic)
+                        if classicHighScore > 40 {
                             vikingHatPic.size = CGSize(width: 81, height: 131)
                             vikingHatPic.zPosition = 110
-                            frame4.addChild(vikingHatPic)
+                            itemBoxList4[4].addChild(vikingHatPic)
                         }
                     }
                 }
@@ -489,7 +577,15 @@ class customizeMenu: SKScene {
         
     }
     
-    
+    func drawMarquee() {
+        var mar1 = SKShapeNode(circleOfRadius: 35)
+        
+        mar1.position = CGPoint(x: ball.position.x + 30, y: ball.position.y)
+        mar1.strokeColor = blueBright
+        mar1.lineWidth = 20
+        mar1.fillColor = SKColor.clear
+        self.addChild(mar1)
+    }
     
     
     
@@ -546,6 +642,7 @@ class customizeMenu: SKScene {
                 page1Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page2Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList2)
             }
             else {
                 frame1.run(SKAction.move(to: CGPoint(x: 0, y: 0), duration: 0.1))
@@ -563,6 +660,7 @@ class customizeMenu: SKScene {
                 page2Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page1Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList1)
                 
                 
             }
@@ -577,6 +675,7 @@ class customizeMenu: SKScene {
                 page2Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page3Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList3)
             }
             else {
                 frame2.run(SKAction.move(to: CGPoint(x: self.frame.size.width*0, y: self.frame.size.height*0), duration: 0.1))
@@ -594,6 +693,7 @@ class customizeMenu: SKScene {
                 page3Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page2Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList2)
                 
             }
             else if frame3.position.x < self.frame.size.width*(-0.1){
@@ -607,6 +707,7 @@ class customizeMenu: SKScene {
                 page3Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page4Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList4)
             }
             else {
                 frame3.run(SKAction.move(to: CGPoint(x: self.frame.size.width*0, y: self.frame.size.height*0), duration: 0.1))
@@ -624,6 +725,7 @@ class customizeMenu: SKScene {
                 page4Display.run(SKAction.scale(by: 0.5, duration: 0.2))
                 page3Display.run(SKAction.scale(by: 2, duration: 0.2))
                 isSwiped = true
+                wiggle(itemBoxlist: itemBoxList3)
             }
             else if frame4.position.x < self.frame.size.width*(-0.1){
                 frame4.run(SKAction.move(to: CGPoint(x: self.frame.size.width*0, y: self.frame.size.height*0), duration: 0.1))
@@ -643,7 +745,7 @@ class customizeMenu: SKScene {
         var xCount:CGFloat = 1
         var yCount:CGFloat = 1
         var xMult: CGFloat = 0.13
-        var yMult: CGFloat = 0.14
+        let yMult: CGFloat = 0.14
         
         
         while findPoints == true{
@@ -653,7 +755,7 @@ class customizeMenu: SKScene {
             if yCount > 3 {
                 //yMult = 0.078
             }
-            boxList.append(CGPoint(x: (self.frame.size.width*xMult)*xCount, y: (self.frame.size.height*yMult)*yCount))
+            boxPositions.append(CGPoint(x: (self.frame.size.width*xMult)*xCount, y: (self.frame.size.height*yMult)*yCount))
             
             
             xCount += 2
@@ -686,6 +788,23 @@ class customizeMenu: SKScene {
         //Backbox.lineWidth = 0
         Backbox.zPosition = 100
         frame.addChild(Backbox)
+        switch frame {
+            case frame1:
+                itemBoxList1.append(Backbox)
+                break
+            case frame2:
+                itemBoxList2.append(Backbox)
+                break
+            case frame3:
+                itemBoxList3.append(Backbox)
+                break
+            case frame4:
+                itemBoxList4.append(Backbox)
+                break
+            default:
+                break
+        }
+        
     }
     
     func createBacking(frame: SKNode) {
@@ -713,28 +832,73 @@ class customizeMenu: SKScene {
     
     func createSelected(frame: SKNode, box: SKSpriteNode, spot: Int) {
         box.size = CGSize(width: 140, height: 140)
-        box.position = boxList[spot]
+        box.position = boxPositions[spot]
         box.zPosition = 101
         frame.addChild(box)
     }
     
-    func createLock(Position: CGPoint,frame: SKNode) {
+    func createLock(Position: CGPoint,frame: SKNode, parent: Array<SKSpriteNode>, parentIndex: Int) {
         let lock = SKSpriteNode(imageNamed: "Lock")
-        var monetaryValue = SKLabelNode(fontNamed: "Helvetica")
+        let monetaryValue = SKLabelNode(fontNamed: "Helvetica")
         lock.size = CGSize(width: 70, height: 70)
         lock.position = CGPoint(x: Position.x , y: Position.y + 20)
         lock.zPosition = 111
-        frame.addChild(lock)
+        parent[parentIndex].addChild(lock)
         initializeLabel(position: CGPoint(x: Position.x, y: Position.y-60), fontColor: coinDark, fontSize: 50, text: "100", label: monetaryValue)
         monetaryValue.zPosition = 150
-        frame.addChild(monetaryValue)
+        parent[parentIndex].addChild(monetaryValue)
+    }
+    
+    var variance:CGFloat = 0
+    
+    func wiggle(itemBoxlist: Array<SKSpriteNode>) {
+        for box in itemBoxlist {
+            //variance += 0.05
+            
+            if variance == 0.15 {
+                variance = 0
+            }
+            
+            box.run(SKAction.sequence([
+                SKAction.rotate(toAngle: 0.3 + variance, duration: 0.1),
+                SKAction.rotate(toAngle: -0.3 - variance, duration: 0.1),
+                SKAction.rotate(toAngle: 0.25 + variance, duration: 0.1),
+                SKAction.rotate(toAngle: -0.25 - variance, duration: 0.1),
+                SKAction.rotate(toAngle: 0.2 + variance, duration: 0.1),
+                SKAction.rotate(toAngle: -0.2 - variance, duration: 0.1),
+                SKAction.rotate(toAngle: 0.15 + variance, duration: 0.1),
+                SKAction.rotate(toAngle: -0.15 - variance, duration: 0.1),
+                SKAction.rotate(toAngle: 0.1 + variance, duration: 0.1),
+                SKAction.rotate(toAngle: -0.1 - variance, duration: 0.1),
+                SKAction.rotate(toAngle: 0.05 + variance/2, duration: 0.1),
+                SKAction.rotate(toAngle: -0.05 - variance/2, duration: 0.1),
+                SKAction.rotate(toAngle: 0.01 + variance/2, duration: 0.1),
+                SKAction.rotate(toAngle: -0.01 - variance/2, duration: 0.1),
+                SKAction.rotate(toAngle: 0, duration: 0.1),
+                ]))
+        }
     }
     
     func returnToGame() {
+        frame1.run(SKAction.sequence([
+            SKAction.scale(to: 1.2, duration: 0.1),
+            SKAction.scale(to: 0.8, duration: 0.1),
+            SKAction.scale(to: 0, duration: 0.1)
+            ]))
+        frame1.run(SKAction.sequence([
+            SKAction.scale(to: 1.2, duration: 0.1),
+            SKAction.scale(to: 0.8, duration: 0.1),
+            SKAction.scale(to: 0, duration: 0.1)
+            ]))
         self.removeAllChildren()
-        var newGame = wallJumperGame(size: self.size)
+        let newGame = wallJumperGame(size: self.size)
         newGame.scaleMode = scaleMode
         self.view?.presentScene(newGame)
+        
+    }
+    
+    func switchColor() {
+        
     }
     
     

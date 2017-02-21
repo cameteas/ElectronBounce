@@ -256,7 +256,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
         if jumpcount == 2 {
             redVariance = 0
         }
-        var marquer = SKShapeNode(circleOfRadius: 25)
+        let marquer = SKShapeNode(circleOfRadius: 25)
         marquer.position = self.ball.position
         if gameover{
             marquer.strokeColor = UIColor(red: 76/255, green: 0.3, blue: 100/255, alpha: 1)
@@ -352,7 +352,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     }
     
     func createEmitNode(position: CGPoint, Velocity: CGVector){
-        var shape = SKShapeNode(circleOfRadius: 10)
+        let shape = SKShapeNode(circleOfRadius: 10)
         shape.strokeColor = SKColor.orange
         shape.lineWidth = 5
         shape.position = position
@@ -383,7 +383,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate{
     
     func showInstruction(label: SKLabelNode, label2: SKLabelNode, line: SKShapeNode) {
         
-        var intructions = SKAction.sequence([
+        let intructions = SKAction.sequence([
             SKAction.fadeOut(withDuration: 0),
             SKAction.run {
                 label.text = "tap to                tap to"
